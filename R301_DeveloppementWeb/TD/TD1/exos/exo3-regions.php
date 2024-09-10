@@ -30,22 +30,44 @@
    for ($i=1; $i < $pagenumber; $i++) { 
       if($i = $pagenumber);
    }
+
+   //Q: Créez un script exo3-regions.php qui affiche la liste des régions (juste les noms) issues du tableau $regions du fichier regions.php, mais en respectant les contraintes suivantes : ● Utilisez une liste <ul> ● Paginez votre affichage en n’affichant que 5 lignes à la fois ● Récupérez le numéro de page dans un paramètre d’URL nommé page ● Placez deux liens (<a href…>) sous la liste permettant de se déplacer vers la page précédente et la page suivante. Adaptez l’URL de chaque lien en fonction du numéro de la page courante. ● Si on est sur la page 1, ne pas afficher le lien “page précédente” ● Si on est sur la dernière page, ne pas afficher le lien “page suivante” en utilisant : require_once(), $_GET, array_slice(), count()
+   require_once('regions.php');
+   $regions = array_keys($regions); //array_keys() retourne toutes les clés ou un sous-ensemble des clés d'un tableau
+
+   $page = $_GET['page'] ?? 1; // Si la variable $_GET['page'] existe, on l'affecte à $page, sinon on affecte 1 à $page 
+
+   // On calcule le nombre de pages
+   $totalPages = ceil(count($regions) / PAGE_SIZE);
+
+   // On vérifie que $page est bien un nombre entier compris entre 1 et $totalPages
+   $start = ($page - 1) * PAGE_SIZE;
+
+   // On récupère les régions à afficher
+   $end = $start + PAGE_SIZE;
+
+   // array_slice() retourne une portion du tableau. Ici, on récupère les éléments du tableau $regions compris entre $start et $end
+   $regions = array_slice($regions, $start, PAGE_SIZE);
+
+   echo '<ul>';
+
+   foreach ($regions as $region) {
+      echo "<li>$region</li>";
+   }
+   echo '</ul>';
+
+   if ($page > 1) {
+      echo "<a href='exo3-regions.php?page=" . ($page - 1) . "'>Page précédente</a>";
+   }
+
+   if ($page < $totalPages) {
+      echo "<a href='exo3-regions.php?page=" . ($page + 1) . "'>Page suivante</a>";
+   }
+
+
+
    ?>
 
-   <ul>
-      <?php foreach ($regions as $region => $departements) { ?>
-         <li><?php echo $region ?></li>
-      <?php }?>
-   </ul>
-
-   <?php
-   if($pagenumber>1){
-   ?>
-         <a href = "http://localhost:8888/exo3-regions.php&page=<?php echo $pagenumber-1?>">Page précédente</a>
-         <?php
-         $totalPage = ceil(count($regions)/PAGE_SIZE);?>
-         <a href = "http://localhost:8888/exo3-regions.php&page=<?php echo $pagenumber+1?>">Page suivante</a>
-         <?php }?>
       
       
 
