@@ -3,7 +3,7 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Question 3</title>
+   <title>Question 4</title>
 </head>
 <body>
 <table>
@@ -104,7 +104,16 @@ $depts = [
 ];
 
 foreach ($depts as $numero => $ville) {
-   echo "<tr><td> $numero </td><td>$ville[0]</td><td>$ville[1]</td></tr> " ; 
+   echo "<tr><td> $numero </td><td>$ville[0](" . trouve_region($numero) . ")</td><td>$ville[1]</td></tr> " ; 
+}
+
+function trouve_region($numero){
+   include("regions.php");
+   foreach($regions as $nom_regions => $num_depts){
+      if(in_array($numero, $num_depts)){
+         return $nom_regions;
+      }
+   }
 }
 
 ?>
