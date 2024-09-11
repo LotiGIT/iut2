@@ -12,8 +12,13 @@ typedef struct{
 
 
 int main(){
-
     
+    t_region *pt_region = (t_region*)malloc(sizeof(t_region));
+    strcpy(pt_region->nom, "Bretagne");
+    pt_region->population = 600000;
+    strcpy(pt_region->capitale, "Rennes");
+
+    printf("\nNom de la région : %s \nPopulation : %d \nCapitale : %s\n", pt_region->nom, pt_region->population, pt_region->capitale);
    
     return EXIT_SUCCESS;
 }

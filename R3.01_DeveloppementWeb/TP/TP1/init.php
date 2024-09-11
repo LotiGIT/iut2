@@ -1,5 +1,3 @@
-#!/usr/bin/php
-
 <?php
     $lines = file('articles');
 
@@ -24,14 +22,5 @@
     
     // si pas serialisé avant on peut le faire comme ça
     // file_put_contents('data',serialize($products));
-
-
-
-
-    
-    
-    
-
-    
 
 ?>
