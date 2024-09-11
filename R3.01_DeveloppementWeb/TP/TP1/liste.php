@@ -6,6 +6,7 @@
     <title>Exercice  2</title>
 </head>
 <body>
+    <!-- CSS -->
     <style>
         table, th, td{
             border : 2px;
@@ -16,16 +17,37 @@
             padding-left : 10px;
         }
     </style>
-    <?php
-    $data = file_get_contents('data');
-    $products = unserialize($data);
-    
-    echo "<table><th>Code</th><th>Libellé</th><th>Prix HT</th><th>Taux TVA</th><th>Montant TVA</th><th>Prix TTC</th><th>Stock</th><th>Quantité vendue</th></table>";
 
-    foreach($data as $line){
-        
-    }
+    <!-- PHP -->
+    <?php
+        $data = file_get_contents('data');
+        $products = unserialize($data);
+        echo $products;
     ?>
+
+
+    <table>
+    <thead>
+        <td>
+            <th>Code</th>
+            <th>Libellé</th>
+            <th>Prix HT</th>
+            <th>Taux TVA</th>
+            <th>Montant TVA</th>
+            <th>Prix TTC</th>
+            <th>Stock</th>
+            <th>Quantité vendue</th>
+        <td>
+    </thead>
+    <tbody>
+        <td>
+            <?php ?>
+        </td>
+    </tbody>
+    </table>
+    
+    
+    
     
 
 
