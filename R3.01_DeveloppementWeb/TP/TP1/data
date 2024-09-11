@@ -1,0 +1,26 @@
+a:26:{i:10;a:5:{s:7:"libelle";s:28:"Tomate cerise Barquette 250g";s:4:"prix";s:4:"1.59";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:11;a:5:{s:7:"libelle";s:22:"Poivron doux vert 500g";s:4:"prix";s:4:"2.20";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:12;a:5:{s:7:"libelle";s:13:"Courgette 1kg";s:4:"prix";s:4:"1.99";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:13;a:5:{s:7:"libelle";s:17:"Oignon rouge 500g";s:4:"prix";s:4:"2.25";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:14;a:5:{s:7:"libelle";s:9:"Artichaut";s:4:"prix";s:4:"1.69";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:15;a:5:{s:7:"libelle";s:10:"Chou fleur";s:4:"prix";s:4:"2.55";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:16;a:5:{s:7:"libelle";s:6:"Avocat";s:4:"prix";s:4:"1.09";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:17;a:5:{s:7:"libelle";s:11:"Carotte 1kg";s:4:"prix";s:4:"1.59";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:18;a:5:{s:7:"libelle";s:17:"Endive Sachet 1kg";s:4:"prix";s:4:"2.35";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:19;a:5:{s:7:"libelle";s:34:"Champignon de Paris Barquette 500g";s:4:"prix";s:4:"2.29";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:20;a:5:{s:7:"libelle";s:14:"Aubergine 500g";s:4:"prix";s:4:"2.50";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:31;a:5:{s:7:"libelle";s:35:"Chocolat au Lait Noisettes - 3x100g";s:4:"prix";s:4:"3.08";s:3:"TVA";s:4:"5.5
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:32;a:5:{s:7:"libelle";s:36:"Tablette Chocolat au lait Bio - 100g";s:4:"prix";s:4:"1.55";s:3:"TVA";s:4:"5.5
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:33;a:5:{s:7:"libelle";s:31:"Matière grasse Oméga 3 - 500g";s:4:"prix";s:4:"3.24";s:3:"TVA";s:4:"5.5
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:40;a:5:{s:7:"libelle";s:30:"Jus d'orange Avec pulpe - 1.5L";s:4:"prix";s:4:"2.83";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:41;a:5:{s:7:"libelle";s:17:"Jus de pomme 90cl";s:4:"prix";s:4:"2.03";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:42;a:5:{s:7:"libelle";s:36:"Nectar Bio Orange pêche abricot - 1";s:4:"prix";s:2:"5L";s:3:"TVA";s:4:"2.43";s:5:"stock";i:0;s:5:"vendu";i:0;}i:43;a:5:{s:7:"libelle";s:30:"Pur jus pamplemousse Rose - 1L";s:4:"prix";s:4:"1.72";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:44;a:5:{s:7:"libelle";s:41:"Boisson végétale soja bio chocolat - 1l";s:4:"prix";s:4:"2.41";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:45;a:5:{s:7:"libelle";s:30:"Lait Demi-écrémé UHT 6x25cl";s:4:"prix";s:4:"4.10";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:46;a:5:{s:7:"libelle";s:31:"Boisson lactée Fraise - 6x20cl";s:4:"prix";s:4:"2.65";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:47;a:5:{s:7:"libelle";s:49:"Boisson végétale lait d'amande vanille bio - 1l";s:4:"prix";s:4:"2.36";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:file_put_contents('data',$tablo);48;a:5:{s:7:"libelle";s:37:"Biscuit bébé 10 mois Boudoir - 120g";s:4:"prix";s:4:"1.70";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:49;a:5:{s:7:"libelle";s:50:"Compote bébé Bio 4 mois Pomme / Pruneau - 2x130g";s:4:"prix";s:4:"1.75";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:50;a:5:{s:7:"libelle";s:38:"Essuie-tout blanc Super absorbant - x6";s:4:"prix";s:4:"3.85";s:3:"TVA";s:3:"20
+";s:5:"stock";i:0;s:5:"vendu";i:0;}i:51;a:5:{s:7:"libelle";s:44:"Papier toilette Maxi douceur - 18+6 rouleaux";s:4:"prix";s:5:"17.30";s:3:"TVA";s:4:"5.5
+";s:5:"stock";i:0;s:5:"vendu";i:0;}}
