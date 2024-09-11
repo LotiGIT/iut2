@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Liste</title>
-</head>
-<body>
+<ul>
 <?php
 $depts = [
    'Ain',
@@ -105,19 +98,8 @@ $depts = [
    'Val-de-Marne',
    'Val-d\'Oise',
 ];
+for ($i=0; $i < count($depts); $i++) { 
+   echo "<li>$depts[$i]</li>";
+}
 ?>
-<ul>
-   <?php 
-      for ($i=0; $i < sizeof($depts); $i++){
-   ?>
-   <li>
-      <?php
-      echo $depts[$i];
-      }
-   ?>
-   </li>
 </ul>
-</body>
-</html>
-
-

@@ -1,1 +1,6 @@
-<pre><?php print_r($_GET)?></pre>
+<pre>
+<?php
+    echo $_GET["nom"] . "\n";
+    echo $_GET["prenom"];
+?>
+</pre>

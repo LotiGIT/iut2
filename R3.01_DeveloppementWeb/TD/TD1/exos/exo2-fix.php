@@ -1,3 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+<table>
+<thead>
+    <tr>
+        <th> Numéro </th>
+        <th> Département </th>
+        <th> Préfécture </th>
+    </tr>
+</thead>
+<tbody>
 <?php
 $depts = [
    '01' => ['Ain', 'Bourg-en-Bresse'],
@@ -97,3 +115,11 @@ $depts = [
    '94' => ['Val-de-Marne', 'Créteil'],
    '95' => ['Val-d\'Oise', 'Cergy'],
 ];
+foreach ($depts as $num => $value) {
+    echo "<tr> <td>$num</td> <td> $value[0] </td> <td> $value[1] </td> </tr>";
+}
+?>
+ </tbody>
+</table>
+</body>
+</html>

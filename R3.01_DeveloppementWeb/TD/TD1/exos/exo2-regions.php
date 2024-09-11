@@ -1,3 +1,12 @@
+<table>
+<thead>
+    <tr>
+        <th> Numéro </th>
+        <th> Département </th>
+        <th> Préfécture </th>
+    </tr>
+</thead>
+<tbody>
 <?php
 $depts = [
    '01' => ['Ain', 'Bourg-en-Bresse'],
@@ -97,3 +106,23 @@ $depts = [
    '94' => ['Val-de-Marne', 'Créteil'],
    '95' => ['Val-d\'Oise', 'Cergy'],
 ];
+
+foreach ($depts as $num => $value) {
+    echo "<tr> <td>$num</td> <td> $value[0] (" . trouve_region($num) . ") </td> <td> $value[1] </td> </tr>";
+}
+
+function trouve_region($code)
+{
+    include 'regions.php';
+
+    foreach ($regions as $reg => $numDep) {
+        if(in_array($code, $numDep))
+        {
+            return $reg;
+        }
+    }
+}
+
+?>
+</tbody>
+</table>

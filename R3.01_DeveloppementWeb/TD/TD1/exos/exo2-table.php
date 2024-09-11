@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Liste</title>
-</head>
-<body>
+<table>
+<thead>
+    <tr>
+        <th> Numéro </th>
+        <th> Département </th>
+    </tr>
+</thead>
+<tbody>
 <?php
 $depts = [
    'Ain',
@@ -105,34 +105,9 @@ $depts = [
    'Val-de-Marne',
    'Val-d\'Oise',
 ];
+for ($i=0; $i < count($depts); $i++) { 
+   echo "<tr><th>$i</th> <td> $depts[$i] </td> </tr>";
+}
 ?>
-<table>
-   <thead>
-      <tr>
-         <th scope="col">Numéro</th>
-         <th scope="col">Département</th>
-         
-         
-      </tr>
-   </thead>
-   <tr> 
-      <?php 
-         for ($i=0; $i < sizeof($depts); $i++){ 
-      ?>
-   </tr>
-   <td>
-   <?php
-      echo $i+1;        
-   ?>
-   </td>
-   <td>
-      <?php
-            echo $depts[$i];
-         }
-      ?>
-   </td>
+</tbody>
 </table>
-</body>
-</html>
-
-
