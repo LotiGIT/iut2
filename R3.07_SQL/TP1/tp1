@@ -1,0 +1,128 @@
+drop schema if exists tp1 cascade;
+create schema tp1;
+set schema 'tp1';
+
+
+create table _user(
+    nickname varchar(255) primary key,
+    pass varchar(255) NOT NULL,
+    email varchar(255) NOT NULL
+);
+
+
+create table _document(
+    iddoc integer primary key,
+    content varchar(255),
+    create_date timestamp NOT NULL default now(),
+    nickname    VARCHAR(255) NOT NULL,
+    author varchar(128),
+    constraint fk_document_inherit foreign key (nickname) references _user(nickname) 
+);
+
+
+create table _post (
+    iddoc int primary key,
+    constraint fk_post foreign key (iddoc) references _document(iddoc)
+);
+
+
+create table _comment(
+    iddoc int primary key,
+    ref int NOT NULL,
+    constraint fk_comment_inherit foreign key (iddoc) references _document(iddoc),
+    constraint fk_comment_ref foreign key (ref) references _document(iddoc),
+    constraint comment_check check(iddoc <>ref)
+);
+
+
+
+INSERT INTO _user VALUES ('Félix', 'pass1', 'felix@gmail.com');
+INSERT INTO _user VALUES ('Arthur', 'pass2', 'arthur@gmail.com');
+INSERT INTO _user VALUES ('Jean', 'pass3', 'jean@gmail.com');
+INSERT INTO _user VALUES ('Thomas', 'pass4', 'thomas@gmail.com');
+INSERT INTO _user VALUES ('Alex', 'pass5', 'alex@gmail.com');
+
+INSERT INTO _document VALUES ('1', 'Bonjour tout le monde !', CURRENT_TIMESTAMP, 'Félix');
+INSERT INTO _document VALUES ('2', 'Quelqu''un jouera encore au foot cette année ?', CURRENT_TIMESTAMP, 'Arthur');
+INSERT INTO _document VALUES ('3', 'Salut Félix ! Tu vas bien ?', CURRENT_TIMESTAMP, 'Arthur');
+INSERT INTO _document VALUES ('4', 'Oui, merci. Et toi ?', CURRENT_TIMESTAMP, 'Félix');
+INSERT INTO _document VALUES ('5', 'Tiens, Félix, tu es rentré de vacances ?', CURRENT_TIMESTAMP, 'Jean');
+INSERT INTO _document VALUES ('6', 'Bonjour Félix ! Bonjour à tous !', CURRENT_TIMESTAMP, 'Thomas');
+INSERT INTO _document VALUES ('7', 'Salut Thomas !', CURRENT_TIMESTAMP, 'Jean');
+INSERT INTO _document VALUES ('8', 'Hello Thomas. Tu reprends le foot cette année ?', CURRENT_TIMESTAMP, 'Arthur');
+INSERT INTO _document VALUES ('9', 'Oui, moi !', CURRENT_TIMESTAMP, 'Jean');
+INSERT INTO _document VALUES ('10', 'Pas moi.', CURRENT_TIMESTAMP, 'Thomas');
+INSERT INTO _document VALUES ('11', 'Non, je vais me mettre au handball, je crois.', CURRENT_TIMESTAMP, 'Thomas');
+INSERT INTO _document VALUES ('12', 'Ah ? Dommage, on s''amusait bien ensemble.', CURRENT_TIMESTAMP, 'Félix');
+INSERT INTO _document VALUES ('13', 'Moi aussi.', CURRENT_TIMESTAMP, 'Félix');
+INSERT INTO _document VALUES ('14', 'Et moi !', CURRENT_TIMESTAMP, 'Alex');
+
+INSERT INTO _post VALUES ('1');
+INSERT INTO _post VALUES ('2');
+
+INSERT INTO _comment VALUES ('3', '1');
+INSERT INTO _comment VALUES ('4', '3');
+INSERT INTO _comment VALUES ('5', '1');
+INSERT INTO _comment VALUES ('6', '1');
+INSERT INTO _comment VALUES ('7', '6');
+INSERT INTO _comment VALUES ('8', '6');
+INSERT INTO _comment VALUES ('9', '2');
+INSERT INTO _comment VALUES ('10', '2');
+INSERT INTO _comment VALUES ('11', '8');
+INSERT INTO _comment VALUES ('12', '8');
+INSERT INTO _comment VALUES ('13', '2');
+INSERT INTO _comment VALUES ('14', '2');
+
+
+
+
+
+
+--2 
+  
+select *, 'post' as type
+from _document d
+where author = 'Félix'
+    and iddoc in (select iddoc from _post)
+union
+select *, 'comment' as type
+from _document d
+where author = 'Félix'
+    and iddoc in (select iddoc from _comment)
+order by create_date desc;
+
+
+
+
+--3
+
+
+-- Dans une fonction SQL
+
+create or replace function commentaires_sql(ref_in integer)
+    returns table (iddoc integer, ref integer) as $$
+with recursive refset(iddoc, ref) as (
+    select c.iddoc, c.ref
+    from _comment c 
+    where c.ref = ref_in
+    union
+    select c.iddoc, c.ref
+    from refset r inner join _comment c 
+    on r.iddoc = c.ref)
+select * from refset;
+$$ language 'sql';
+
+create or replace function commentaires(ref_in integer)
+    returns table (iddoc integer, ref integer) as $$
+begin
+    --- un ensemble de traitement
+    perform *from _document d where d.iddoc = ref_in;
+    if not found then 
+      raise notice 'Le document % n''existe pas.', ref_in;
+    end if;
+    --- retourner le résultat
+    return query 
+        select *
+        from commentaires_sql(ref_in);
+end;
+$$ language 'plpgsql';
