@@ -4,30 +4,29 @@ set schema 'tp1';
 
 
 create table _user(
-    nickname varchar(255) primary key,
+    nickname varchar(255) constraint _user_pk primary key,
     pass varchar(255) NOT NULL,
     email varchar(255) NOT NULL
 );
 
 
 create table _document(
-    iddoc integer primary key,
+    iddoc integer constraint _document_pk primary key,
     content varchar(255),
     create_date timestamp NOT NULL default now(),
-    nickname    VARCHAR(255) NOT NULL,
-    author varchar(128),
-    constraint fk_document_inherit foreign key (nickname) references _user(nickname) 
+    author    VARCHAR(255) NOT NULL,
+    constraint fk_document_inherit foreign key (author) references _user(nickname) 
 );
 
 
 create table _post (
-    iddoc int primary key,
+    iddoc int constraint _post_pk primary key,
     constraint fk_post foreign key (iddoc) references _document(iddoc)
 );
 
 
 create table _comment(
-    iddoc int primary key,
+    iddoc int constraint _comment_pk primary key,
     ref int NOT NULL,
     constraint fk_comment_inherit foreign key (iddoc) references _document(iddoc),
     constraint fk_comment_ref foreign key (ref) references _document(iddoc),
@@ -80,7 +79,7 @@ INSERT INTO _comment VALUES ('14', '2');
 
 --2 
   
-select *, 'post' as type
+(select *, 'post' as type
 from _document d
 where author = 'Félix'
     and iddoc in (select iddoc from _post)
@@ -88,7 +87,7 @@ union
 select *, 'comment' as type
 from _document d
 where author = 'Félix'
-    and iddoc in (select iddoc from _comment)
+    and iddoc in (select iddoc from _comment))
 order by create_date desc;
 
 
