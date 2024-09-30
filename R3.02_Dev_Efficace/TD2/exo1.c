@@ -3,7 +3,7 @@
 #include <string.h>
 
 // Définition d'un noeud de la liste chainée
-typedef struct Node{
+typedef struct{
     int donnees;
     struct Node* next;
 }Node;

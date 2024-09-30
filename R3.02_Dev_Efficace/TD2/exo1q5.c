@@ -23,22 +23,22 @@ int main(){
 
 ////////////////////// Rappel ///////////////////////////////
 
-// int appartient(ensemble 1, int n){
+// int appartient(ensemble l, int n){
 //     int res=0;
 //     telement * p;
-//     p=1;
+//     p=l;
 //     while((p!=NULL) && (res==0)){
-//         if(p->val==n) res=1;
+//         if(p->val==n) res=l;
 //         p=p->svt;
 //     }
 //     return res;
 // }
 
-// void ajouter(ensemble *1, int a){
-//     if(appartient(*1, a)==0){
+// void ajouter(ensemble *l, int a){
+//     if(appartient(*l, a)==0){
 //         telement *e = (telement*)malloc(sizeof(telement));
 //         e->val=a;
-//         e->svt=*1;
-//         *1=e;
+//         e->svt=*l;
+//         *l=e;
 //     }
 // }
