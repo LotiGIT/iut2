@@ -4,7 +4,7 @@ set schema 'tp1';
 
 
 create table _user(
-    nickname varchar(255) constraint _user_pk primary key,
+      nickname varchar(255) constraint _user_pk primary key,
     pass varchar(255) NOT NULL,
     email varchar(255) NOT NULL
 );

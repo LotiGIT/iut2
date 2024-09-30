@@ -1,0 +1,36 @@
+{
+    "UI": {
+        "CheckedNetworkObjects": {
+            "JsonStoreArray": [
+            ]
+        },
+        "ComputerPositions": {
+            "JsonStoreArray": [
+            ]
+        },
+        "FilterComputersWithLoggedOnUsers": false,
+        "FilterPoweredOnComputers": false,
+        "SlideshowDuration": 3000,
+        "SplitterStates": {
+            "JsonStoreObject": {
+                "MainSplitter": [
+                    0,
+                    0,
+                    1377
+                ],
+                "MonitoringSplitter": [
+                    -277,
+                    277
+                ],
+                "SlideshowSpotlightSplitter": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "SpotlightRealtime": true,
+        "UseCustomComputerPositions": false,
+        "WindowGeometry": "AdnQywADAAAAAAAkAAAAAAAABYwAAALTAAAAKAAAABwAAAWIAAACzwAAAAAAAAAAB4AAAAAoAAAAHAAABYgAAALP",
+        "WindowState": "AAAA/wAAAAD9AAAAAAAABWEAAAIxAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAHQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAAAAAAA=="
+    }
+}
