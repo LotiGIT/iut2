@@ -78,4 +78,17 @@ et de <b>régression</b> lorsque l'on prédit une variable continue : prix, âge
 
 Approche supervisée --> Clustering
 Approche non supervisée --> Classification et Régression
+
+### Résumé
   
+    Le Perceptron, ancêtre des réseaux de neurones actuels, a été inventé en 1957 : le Machine Learning ne date pas d'hier.
+
+    La modélisation statistique tend à comprendre la dynamique interne des variables tandis que le Machine Learning a pour unique but la prédiction d'une de ces variables.
+
+    Il y a 3 étapes pour développer un modèle : travail sur la donnée, validation croisée et optimisation.
+
+    On distingue deux approches : l’approche supervisée, où une des variables est utilisée comme cible de la prédiction ; l'approche non supervisée qui vise à regrouper les échantillons par similarité (on parle de clustering).
+
+    Dans l'approche supervisée, dans le cas d'une variable cible continue on parlera de régression, et de classification si la variable cible est composées de catégories.
+
+    Vous trouverez de nombreux datasets pour le Machine Learning sur le site de UCI.
