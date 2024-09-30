@@ -33,6 +33,7 @@ Librairies python :
 
 # Machine Learning
 
+
 A la base du Machine Learning il y a le <font color="red"><i> dataset</i></font>
 
 Une partie des données récoltées une fois numérisées, nettoyées, normalisées (<font color="red"><i>data cleaning</i></font>) est séparée du reste des autres données.
@@ -92,3 +93,27 @@ Approche non supervisée --> Classification et Régression
     Dans l'approche supervisée, dans le cas d'une variable cible continue on parlera de régression, et de classification si la variable cible est composées de catégories.
 
     Vous trouverez de nombreux datasets pour le Machine Learning sur le site de UCI.
+
+
+# Différents modèles
+
+1. Les modèles de régression
+   - Jeux de données à taille limitée avec relation entre les variables
+2. Les modèles à base d'arbres
+   - Jeux de données tabulaires de taille plus conséquente (+robuste : données manquantes/observations aberrantes) <b>OUTLIERS</b> (gagnants des compétitions Kaggle)
+3. Les réseaux de neurones et le Deep Learning
+    - Jeux de données gros volume, + complexe (images, vidéo).
+
+# Valeur aberrante
+
+Donnée qui s'écarte du reste des observations dans un ensemble de données.
+    OUTLIER
+
+
+
+
+
+
+
+
+
