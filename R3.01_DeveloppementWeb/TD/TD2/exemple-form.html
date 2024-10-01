@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Formulaire</title>
+   </head>
+   <body>
+      <form action="process.php" method="post" enctype="multipart/form-data">
+         <!-- Texte avec label -->
+         <label for="nom">Nom :</label>
+         <input type="text" id="nom" name="nom" required />
+         <br />
+
+         <!-- Mot de passe -->
+         <label for="motdepasse">Mot de passe :</label>
+         <input type="password" id="motdepasse" name="motdepasse" required />
+         <br />
+
+         <!-- Cases à cocher -->
+         <label>Langue :</label>
+         <input type="checkbox" id="lang1" name="lang[]" value="FR" />
+         <label for="lang1">Français</label>
+         <input type="checkbox" id="lang2" name="lang[]" value="EN" />
+         <label for="lang2">Anglais</label>
+         <input type="checkbox" id="lang3" name="lang[]" value="IT" />
+         <label for="lang3">Italien</label>
+         <input type="checkbox" id="lang4" name="lang[]" value="JP" />
+         <label for="lang4">Japonais</label>
+         <br />
+
+         <!-- Boutons radio -->
+         <label>Genre :</label>
+         <input type="radio" id="genre1" name="genre" value="Homme" />
+         <label for="genre1">Homme</label>
+         <input type="radio" id="genre2" name="genre" value="Femme" />
+         <label for="genre2">Femme</label>
+         <br />
+
+         <!-- Liste déroulante -->
+         <label for="pays">Pays :</label>
+         <select id="pays" name="pays">
+            <option value="france">France</option>
+            <option value="england">Angleterre</option>
+            <option value="italie">Italie</option>
+            <option value="japon">Japon</option>
+         </select>
+         <br />
+
+         <!-- Texte multiligne -->
+         <label for="commentaire">Commentaires :</label>
+         <textarea id="commentaire" name="commentaire" rows="6" cols="60"></textarea>
+         <br />
+
+         <!-- Téléchargement de fichier -->
+         <label for="fichier">Envoyer fichier :</label>
+         <input type="file" id="fichier" name="fichier" />
+         <br />
+
+         <!-- Date -->
+         <label for="date">Date de naissance :</label>
+         <input type="date" id="date" name="date" />
+         <br />
+
+         <!-- Email -->
+         <label for="email">Email :</label>
+         <input type="email" id="email" name="email" />
+         <br />
+
+         <!-- Téléphone -->
+         <label for="telephone">Téléphone :</label>
+         <input type="tel" id="telephone" name="telephone" />
+         <br />
+
+         <!-- Bouton de soumission -->
+         <input type="submit" value="Soumettre" />
+      </form>
+   </body>
+</html>
