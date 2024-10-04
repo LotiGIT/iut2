@@ -1,6 +1,6 @@
-drop schema if exists tp1 cascade;
-create schema tp1;
-set schema 'tp1';
+drop schema if exists tp2 cascade;
+create schema tp2;
+set schema 'tp2';
 
 
 create table _user(
