@@ -7,7 +7,7 @@ public class EnCoursOuverture implements EtatPorte {
 	}
 
 	public void appuie() {
-				porte.setEtat(porte.getEtatEnCoursFermeture());
+			porte.setEtat(porte.getEtatEnCoursFermeture());
 	}
 
 	public void termine() {

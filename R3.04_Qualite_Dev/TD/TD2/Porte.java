@@ -5,18 +5,17 @@ public class Porte {
 	private EtatPorte enCoursOuverture;
 	private EtatPorte fermee;
 	
-    private EtatPorte etatPorte;
-
-    public Porte() { 
-    
-    fermee= new Fermee(this);
-    ouverte = new Ouverte(this);
-    enCoursOuverture=new EnCoursOuverture(this);
-    enCoursFermeture=new EnCoursFermeture(this);
-    setEtat(fermee);
-    
-    }
-    
+       private EtatPorte etatPorte;
+	
+       public  Porte() { 
+       
+        fermee= new Fermee(this);
+        ouverte = new Ouverte(this);
+        enCoursOuverture=new EnCoursOuverture(this);
+        enCoursFermeture=new EnCoursFermeture(this);
+        setEtat(fermee);
+        
+     }
 	public void appuie() {             
           etatPorte.appuie();
         } 
