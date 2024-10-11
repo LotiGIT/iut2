@@ -27,7 +27,7 @@ Il faut créer un CRUD des tables en quelques étapes :
 3. Répéter l'étape 3 pour autant de table à faire.
 
 #### UPDATE
-
+-----------------------------------------------------------------------
 Ici commence à se corser les choses.
 Pour update il faut utiliser des triggers pour raise des exceptions.
 C'est l'étape où l'ont commence vraiment à coder en SQL.
@@ -35,7 +35,7 @@ C'est l'étape où l'ont commence vraiment à coder en SQL.
 
 On créer d'abord une fonction **user_update** qui va gérer les cas d'erreurs d'update mais qui va aussi mettre à jour la table dans les bonnnes conditions  : 
 
-```sql
+```postgresql
 create or replace function user_update() returns trigger as $$
 begin
   if old.nickname <> new.nickname then
@@ -66,6 +66,23 @@ execute procedure user_update();
 
 
 
-##
-
+#### DELETE
+---------------------------------------------------------------
+```postgresql
+create or replace function user_delete() returns trigger as $$
+begin
+  perform * from forum2._user where nickname = 'Anonymous';
+  if not found then
+    insert into _user values ('Anonymous', 'blabla', 'nobody@nowhere.space');
+  update _document
+  set author = 'Anonymous'
+  where author = old.nickname;
+  delete from forum2._user where nickname = old.nickname;
+  return old;
+endcreate trigger tg_user_update
+instead of update
+on forum2.user for each row
+execute procedure user_update();;
+$$ language 'plpgsql';
+```
 
