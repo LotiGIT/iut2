@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>document</title>
+    
+    <style>
+        .monStyle1{color: blue;}
+        .monStyle2{background-color:yellow;}
+        .monStyle3{font-weight:bold;}
+    </style>
+</head>
+<body> 
+    <header class="monStyle1 monStyle2"> 
+        <p>Texte1</p>
+        <p>Texte2</p>
+        <p>Texte en gras</p>
+    </header>
+    <script>
+        // exo cours
+        // let liste = document.getElementById("monId").classList.add("monStyle2");
+
+        //remplacer les deux textes par le nom des classes
+        let tabClass = document.querySelector("header").classList;
+        document.getElementsByTagName("p")[0].textContent = tabClass[0];
+        document.getElementsByTagName("p")[1].textContent = tabClass[1];
+
+        
+    </script>
+    <h1>Diplôme</h1> 
+    <article id="un" class="bloc"> 
+        <h2 id="titre1">Diplôme</h2> 
+        <p class="diplo">Bac S</p> 
+        <p class="diplo">BUT</p> 
+    </article> 
+    <article id="deux" class="bloc"> 
+        <h2 id="titre2">Langages</h2> 
+        <p class="lang">HTML</p> 
+        <p class="lang">CSS</p> 
+    </article> 
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>document</title>
+</head>
+<body> 
+    <article>
+        <p>         </p>    <!--Nom du node article-->
+
+        <p>         </p>    <!--Type du node article-->
+    </article>
+    <script>
+        let elem = document.querySelector("article");
+        let nouvElem1 = document.createElement("p");
+        nouvElem1.textContent = elem.nodeName;
+        elem.appendChild(nouvElem1);
+        let nouvElem2 = document.createElement("p");
+        nouvElem2.textContent = elem.nodeType;
+        elem.appendChild(nouvElem2);
+    </script>
+</body>
+</html>
