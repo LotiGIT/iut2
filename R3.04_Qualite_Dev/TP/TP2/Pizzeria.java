@@ -1,6 +1,6 @@
 public class Pizzeria{
     private String nom;
-    private Fabrique fabrique;
+    private FabriqueAbstraite fabrique;
 
     public Pizzeria(String nom){
         nom = this.nom;
