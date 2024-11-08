@@ -102,7 +102,7 @@ INSERT INTO forum2._comment(iddoc, ref) VALUES (14,2);
 
 --
 -- Pour mettre la sequence à la bonne valeur après les insertions
-select setval('forum2._document_iddoc_seq', 14 );
+-- select setval('forum2._document_iddoc_seq', 14 );
 
 /*
 -- Autre façon : enchainer les insert
