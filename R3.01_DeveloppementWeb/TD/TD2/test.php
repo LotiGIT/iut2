@@ -29,14 +29,32 @@
 
             $types_autorises = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
             
+            if(in_array($type_fichier, $types_autorises)){
 
-            // Récupérer l'extension en fonction du type MIME
+                // Récupérer l'extension en fonction du type MIME
+                switch($type_fichier){
+                    case 'image/png':
+                        $extention = '.png';
+                        break;
+                    case 'image/jpeg':
+                        $extention = '.jpeg';
+                        break;
+                    case 'image/webp':
+                        $extention = '.webp';
+                        break;
+                    case 'image/gif':
+                        $extention = 'webp';
+                        break;    
+                }
+            }
+            
 
             // Générer un nom de fichier unique avec time()
-
+            $nouveau_nom_fichier = time().$extention;
             // Définir le chemin complet pour déplacer le fichier
-
+            $destination = 'avatars/'.$nouveau_nom_fichier;
             // Déplacement du fichier dans une nouvelle destination
+            move_uploaded_file($fichier_temporaire, $destination);
         }
 
             

@@ -109,9 +109,120 @@ Approche non supervisée --> Classification et Régression
 Donnée qui s'écarte du reste des observations dans un ensemble de données.
     OUTLIER
 
+# Algo particulier
+
+## Gradient stochastique (à apprendre)
+
+Communément utilisé pour entraîner les modèles de Machine Learning, Deep Learning inclus.
+
+### Détails du gradient stochastique
+
+- Soit un jeu d'échantillons.
+- On cherche un vecteur h qui minimise un critère (<b>fonction de coût</b>)
+- On se dote d'un paramètre (<b>learning rate</b>)
+  - règle l'intensité de la correction de l'estimation apporté par l'erreur d'estimation. En gros c'est un bouton qui permet d'ajuster la vitesse de mise à jour de l'estimation donc de la vitesse de convergence de l'algo. 
+
+On aura, de façon simplifiée, à chaque itération :
+
+- calcul de l'erreur à partir de l'estimation et des valeurs réelles :
+
+    - erreur = f(estimation, groundtruth)
+
+- mise à jour de l'estimation :
+
+    - estimation = estimation * learning_rate * f(erreur)
+
+- stop en fonction d'un seuil d'erreur minimal.
 
 
 
+### Learning rate
+
+1. Learning Rate petit : convergence lente mais meilleure précision
+2. Learning Rate grand : convergence rapide mais résultats moins précis
+3. Learning Rate trop grand : explosion et non convergence
+
+<b>Le learning rate est un des paramètres principaux des modèles que je serais amené à entraîner.</b>
+
+## Résumé
+
+3 types de modèles couramment utilisés : 
+- Linéaire
+- A base d'arbres
+- Réseaux de neurones
+  
+Il faut distinguer le type du modèle (classe, famille), de sa version instanciée, qui est entraineée sur un jeu de données et prête à faire ses prédictions.
+
+Un algorythme est la répétition d'un calcul simple, par itération il s'approche du résultat attendu.
+
+L'erreur d'estimation est un des <b>éléments clés</b> de l'lgo et du modèle de ML. Il permet de juger la pertinance de l'estimation.
+
+
+# Projet DATA Science
+
+## Phase 1 - Définir spécifications à partir de la problématique business
+
+Il faut au minimum :
+  - données pertinantes
+  - sujet ou produit défini
+  - montrer un avantage de l'approche prédictive plutôt qu'une solution plus simple
+  
+En premier lieu il faut une étude de <b>benchmark</b>
+  - Comment définir le succès du projet ?
+  - Comment mesurer la performance du système
+  - Quelle métrique utiliser pour le scorinf du modèle
+  - Quel score sera nécessaire à obtenir pour réaliser les objectifs du projet ?
+
+### Exemples de benchmark
+
+Prédiction météo<br>
+Prédiction du prix d'une course de taxi<br>
+Estimation des ventes d'un produit basée sur la moyenne des 3 derniers mois pour estimer les ventes futures
+
+### Autres
+
+Les projets suivants nécessitent une bonne dose de ML :
+- prédire la défaillance d'une pièce ou d'un serveur informatique, ou le risque défaut d'un crédit
+- classer automatiquement de grand volumes de fichiers sons ou images
+- détecter des contenus agressifs ou des fake news sur les réseaux sociaux
+
+## Phase 2 - Concevoir prototype et valider faisabilité projet
+
+- étape 1 : mettre en forme les données
+  - nettoyer les données càd résoudre les outlier(données aberrantes) et les données manquantes
+  - créer de nouvelles variables à partir de variables existantes, *feature engineering*
+  - numériser les données catégoriques, textuelles ou images pour qu'elles soint ingérables par un modèle
+- étape 2 : choisir le type de modèle : GLM, Tree, NN ou autre
+- étape 3 : répartir les données avec une partie réservée pour l'entrainement et l'autre pour la validation
+- étape 4 : optimiser les paramètres du modèle
+
+Ces étapes peuvent être cyclique.
+
+## Phase 3 - Mettre en production le projet
+
+Penser à la mise en production de centaines voir de miliers de modèles en parallèle, qui doivent être automatiquement : 
+- mis à jour
+- (ré)entraînés
+- déployés
+- surveillés
+
+Penser aux crises mondiales récentes, crises économiques, guerres, pandémies, bouleversement climatiques, qui vont continuer à chambouler de nombreux modèles de prédiction<br>
+
+
+On parle alors de drift du modèle. En termes d'outillage on passe de Python et de librairies de ML (scikit-learn, PyTorch, TensorFlow) à des plateformes de gestion des actifs à large échelle comme Kubernetes et des outils de mise en production et surveillance comme Seldon ou MLflow.
+
+
+## Résumé
+
+- Un projet de Data Science a 3 grandes phases : conception, modélisation et production.
+
+- Définir un benchmark en préalable du projet permet de valider le retour sur investissement de l'approche Machine Learning comparée à une approche plus simple et plus directe.
+
+- Un bon modèle prédictif offre de bonnes performances face à des données qu'il n'a pas rencontrées lors de son entraînement. Il sait extrapoler.
+
+- Il faut régulièrement ré-entraîner un modèle pour qu'il s'adapte aux évolutions naturelles des données.
+
+- Le MLOps est un rôle clé qui a pour responsabilité de mettre les modèles en production et de les surveiller.
 
 
 
