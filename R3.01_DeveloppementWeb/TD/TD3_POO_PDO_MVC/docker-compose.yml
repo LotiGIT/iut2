@@ -1,0 +1,60 @@
+services:
+   mariadb:
+      # image: bigpapoo/r301-mariadb:11.0
+      image: r301-mariadb:11.0
+      ports:
+         - 13306:3306
+      # env_file:
+      #    - ./env
+      environment:
+         - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+         - MARIADB_USER=${DB_USERNAME}
+         - MARIADB_PASSWORD=${DB_PASSWORD}
+         - MARIADB_DATABASE=${DB_DATABASE}
+      volumes:
+         - db:/bitnami/mariadb
+      networks:
+         - r301
+
+   phpmyadmin:
+      # image: bigpapoo/r301-phpmyadmin:5.2.1
+      image: r301-phpmyadmin:5.2.1
+      ports:
+         - "8001:80"
+      # env_file:
+      #    - ./env
+      environment:
+         - PMA_HOST=${DB_HOST}
+         - PMA_USER=${DB_USERNAME}
+         - PMA_PASSWORD=${DB_PASSWORD}
+         - PMA_DB=${DB_DATABASE}
+      networks:
+         - r301
+
+   myapp:
+      # image: bigpapoo/r301-php:8.2-apache
+      image: r301-php:8.2-apache
+      ports:
+         - "8000:80"
+      # env_file:
+      #    - ./env
+      environment:
+         - DB_HOST=${DB_HOST}
+         - DB_PORT=${DB_PORT}
+         - DB_USERNAME=${DB_USERNAME}
+         - DB_ROOTPASSWORD=${DB_PASSWORD}
+         - DB_PASSWORD=${DB_PASSWORD}
+         - DB_DATABASE=${DB_DATABASE}
+      volumes:
+         - app:/var/www
+      networks:
+         - r301
+      depends_on:
+         - mariadb
+
+volumes:
+   app:
+   db:
+
+networks:
+   r301:
