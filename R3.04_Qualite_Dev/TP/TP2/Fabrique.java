@@ -3,7 +3,7 @@ public interface Fabrique{
 }
 
 
-public class FabriqueLannion implements FabriqueAbstraite{
+public class FabriqueLannion implements Fabrique{
     PateQuimper pateLannionaise;
     GarnitureLannion pipi;
     GarnitureLannion chocolat;
@@ -24,7 +24,7 @@ public class FabriqueLannion implements FabriqueAbstraite{
     }
 }
 
-public class FabriqueQuimper implements FabriqueAbstraite{
+public class FabriqueQuimper implements Fabrique{
     
     PateQuimper pateQuimperoise;
     GarnitureQuimper caca;
