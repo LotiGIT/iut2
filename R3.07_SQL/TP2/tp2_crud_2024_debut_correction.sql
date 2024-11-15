@@ -96,7 +96,7 @@ declare
 begin
   insert into forum2._document (content, author) 
     values (new.content, new.author)
-    returning iddoc into iddoctemp;
+    returning iddoc into iddoctemp; ----<-------<-------<------<-----<------<---<----<---<--- va servir pour le tp noté (returning)
   insert into forum2._post(iddoc) values (iddoctemp);
   return new;
 end;
@@ -159,7 +159,7 @@ create or replace view forum2.comment as
   
 -- CREATE 
 
-create or replace function forum2.comment_update() returns trigger as $$
+create or replace function forum2.comment_update() returns trigger as $$ ----- trigger after delete on post marche
 declare
     iddoctemp forum2._document.iddoc%type;
 begin
