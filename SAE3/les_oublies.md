@@ -72,3 +72,6 @@ d’utilisation de la PACT.
 Un visiteur identifié ou non peut : 
 - Signaler à l'administrateur un avis ne respectant pas les conditions d'utilisation de la <b>PACT</b>
 - Liker ou disliker un avis. Un compteur affiche le nombre de like et dislike
+
+Un Membre peut :
+- consulter et modifier les informations de son compte <b style ="color:red">(toute modification requiert de rentrer son mot de passe (double authentification sprint 3))</b> 

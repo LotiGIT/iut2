@@ -7,7 +7,7 @@ SET SCHEMA 'sae_db';
 
 -- Table Adresse
 CREATE TABLE _adresse (
-    adresse_id SERIAL PRIMARY KEY,
+    id_adresse SERIAL PRIMARY KEY,
     code_postal CHAR(5) NOT NULL,
     ville VARCHAR(255) NOT NULL,
     numero varchar(255) not null,
@@ -22,7 +22,7 @@ CREATE TABLE _compte (
     email VARCHAR(255) NOT NULL,
     mdp_hash VARCHAR(255) NOT NULL,
     num_tel VARCHAR(255) NOT NULL,
-    adresse_id integer REFERENCES _adresse(adresse_id) NOT NULL
+    id_adresse integer REFERENCES _adresse(id_adresse) NOT NULL
 );
 
 -- Table Membre
@@ -54,10 +54,19 @@ CREATE TABLE _pro_public (
 ALTER TABLE _pro_public ADD CONSTRAINT unique_id_compte_Pro_Public UNIQUE (id_compte);
 
 -- ------------------------------------------------------------------------------------------------------- fin
+-- ----------------------------------------------------------------------------------------------Avis----- début
+
+CREATE TABLE _avis (
+  date_publication DATE,
+  date_experience DATE,
+  reponse_pro varchar(1024),
+  titre varchar(50),
+  commentaire varchar(1024)
+);
 -- ----------------------------------------------------------------------------------------------RIB------ début
 -- Table RIB
 CREATE TABLE _RIB (
-    rib_id SERIAL PRIMARY KEY,
+    id_rib SERIAL PRIMARY KEY,
     code_banque varchar(255) NOT NULL,
     code_guichet varchar(255) NOT NULL,
     numero_compte varchar(255) NOT NULL,
@@ -70,7 +79,7 @@ CREATE TABLE _RIB (
 -- Table TAG
 
 CREATE TABLE _tag (
-    tag_id SERIAL PRIMARY KEY,
+    id_tag SERIAL PRIMARY KEY,
     nom_tag VARCHAR(255) NOT NULL
 );
 
@@ -82,7 +91,7 @@ create table _type_offre (
 
 
 CREATE TABLE _offre (
-    offre_id SERIAL PRIMARY KEY,
+    id_offre SERIAL PRIMARY KEY,
     est_en_ligne BOOLEAN NOT NULL,
     description_offre TEXT,
     resume_offre TEXT,
@@ -91,9 +100,9 @@ CREATE TABLE _offre (
     date_creation DATE NOT NULL,
     date_mise_a_jour DATE,
     date_suppression DATE,
-    idPro integer references _professionnel(id_compte),
+    id_pro integer references _professionnel(id_compte),
     type_offre_id integer references _type_offre(type_offre_id),
-    adresse_id serial REFERENCES _adresse(adresse_id),
+    id_adresse serial REFERENCES _adresse(id_adresse),
     option VARCHAR(10)
 );
 
@@ -105,7 +114,7 @@ ALTER TABLE _offre ENABLE ROW LEVEL SECURITY;
 
 -- créer une politique RLS (les professionnels uniquement peuvent accéder à leur offre=
 CREATE POLICY offre_filter_pro ON _offre
-USING (idPro = current_setting('app.current_professional')::INTEGER);
+USING (id_pro = current_setting('app.current_professional')::INTEGER);
 
 -- créer une politique RLS (les visiteurs peuvent accéder à toutes les offres)
 CREATE POLICY offre_filter_visiteur ON _offre
@@ -116,17 +125,17 @@ USING (current_setting('app.current_professional', true) IS NULL);
 -- créer politique RLS sur l'insertion
 CREATE POLICY offre_insert_pro ON _offre
 FOR INSERT
-WITH CHECK (idPro = current_setting('app.current_professional')::INTEGER);
+WITH CHECK (id_pro = current_setting('app.current_professional')::INTEGER);
 
 -- créer politique RLS sur la mise à jour
 CREATE POLICY offre_update_pro ON _offre
 FOR UPDATE
-USING (idPro = current_setting('app.current_professional')::INTEGER);
+USING (id_pro = current_setting('app.current_professional')::INTEGER);
 
 -- créer politique RLS sur la supression
 CREATE POLICY offre_delete_pro ON _offre
 FOR DELETE
-USING (idPro = current_setting('app.current_professional')::INTEGER);
+USING (id_pro = current_setting('app.current_professional')::INTEGER);
 
 -- assure que même les supers utilisateurs respectent la politique de sécurité
 ALTER TABLE _offre FORCE ROW LEVEL SECURITY;
@@ -136,24 +145,24 @@ ALTER TABLE _offre FORCE ROW LEVEL SECURITY;
 -- TAGs Offre ------------------------------------------------------------
 
 CREATE TABLE _tag_offre (
-    offre_id serial REFERENCES _offre(offre_id),
-    tag_id serial REFERENCES _tag(tag_id),
-    PRIMARY KEY (offre_id, tag_id)
+    id_offre serial REFERENCES _offre(id_offre),
+    id_tag serial REFERENCES _tag(id_tag),
+    PRIMARY KEY (id_offre, id_tag)
 );
 -- ------------------------------------------------------------------------------------------------------- fin
 -- --------------------------------------------------------------------------------------------Facture---- début
 
 CREATE TABLE _facture (
-    facture_id SERIAL PRIMARY KEY,
+    id_facture SERIAL PRIMARY KEY,
     jour_en_ligne DATE NOT NULL,
-    offre_id serial REFERENCES _offre(offre_id)
+    id_offre serial REFERENCES _offre(id_offre)
 );
 -- ------------------------------------------------------------------------------------------------------- fin
 -- -----------------------------------------------------------------------------------------------Logs---- début
 
 CREATE TABLE _log_changement_status (
-    id SERIAL PRIMARY KEY,
-    offre_id serial REFERENCES _offre(offre_id),
+    id_log_changement_status SERIAL PRIMARY KEY,
+    id_offre serial REFERENCES _offre(id_offre),
     date_changement DATE NOT NULL
 );
 
@@ -172,29 +181,29 @@ create table _type_repas (
 
 -- Héritage pour les types d'offres
 CREATE TABLE _restauration (
-    restauration_id SERIAL PRIMARY KEY,
+    id_restauration SERIAL PRIMARY KEY,
     gamme_prix varchar(3) NOT NULL,
     type_repas_id integer references _type_repas(type_repas_id)
 ) INHERITS (_offre);
 
 create table _restaurant_type_repas (
-    restauration_id serial REFERENCES _restauration(restauration_id) ON DELETE CASCADE,
+    id_restauration serial REFERENCES _restauration(id_restauration) ON DELETE CASCADE,
     type_repas_id serial REFERENCES _type_repas(type_repas_id) ON DELETE CASCADE,
-    PRIMARY KEY (restauration_id, type_repas_id)
+    PRIMARY KEY (id_restauration, type_repas_id)
 );
 
 -- TAGs Restaurants --------------------------------------------------------
 -- Type de restaurant : gastronomie, kebab, etc..
 create table _tag_restaurant (
-  tag_restaurant_id serial primary key,
+  id_tag_restaurant serial primary key,
   nom_tag varchar(255) not null
 );
 
 -- table qui dit que 1 restaurant à 1 tag
 create table _tag_restaurant_restauration (
-  restauration_id serial references _restauration(restauration_id),
-  tag_restaurant_id serial references _tag_restaurant(tag_restaurant_id),
-  primary key (restauration_id, tag_restaurant_id)
+  id_restauration serial references _restauration(id_restauration),
+  id_tag_restaurant serial references _tag_restaurant(id_tag_restaurant),
+  primary key (id_restauration, id_tag_restaurant)
 );
 
 -- ------------------------------------------------------------------------------------------------------- fin
@@ -210,8 +219,8 @@ CREATE TABLE _activite (
 -- TAGs Activité---------------------------------------------
 create table _tag_activite (
   id_activite serial references _activite(id_activite),
-  tag_id serial references _tag(tag_id),
-  primary key (id_activite, tag_id)
+  id_tag serial references _tag(id_tag),
+  primary key (id_activite, id_tag)
 );
 
 -- ------------------------------------------------------------------------------------------------------- fin
@@ -228,36 +237,36 @@ CREATE TABLE _spectacle (
 -- TAG Spectacles 
 create table _tag_spectacle (
   id_spectacle serial references _spectacle(id_spectacle),
-  tag_id serial references _tag(tag_id),
-  primary key (id_spectacle, tag_id)
+  id_tag serial references _tag(id_tag),
+  primary key (id_spectacle, id_tag)
 );
 
 -- ------------------------------------------------------------------------------------------------------- fin
 -- --------------------------------------------------------------------------------------------Visites---- début
 
 CREATE TABLE _visite (
-    visite_id SERIAL PRIMARY KEY,
+    id_visite SERIAL PRIMARY KEY,
     duree_visite TIME,
     guide_visite BOOLEAN
 ) INHERITS (_offre);
 
 -- langues parlées durant la visite
 CREATE TABLE _langue (
-    langue_id SERIAL PRIMARY KEY,
+    id_langue SERIAL PRIMARY KEY,
     nom_langue VARCHAR(255)
 );
 
 -- Table de lien pour les langues parlées durant les visites
 CREATE TABLE _visite_langue (
-    id_visite serial REFERENCES _visite(visite_id),
-    langue_id serial REFERENCES _langue(langue_id)
+    id_visite serial REFERENCES _visite(id_visite),
+    id_langue serial REFERENCES _langue(id_langue)
 );
 
 -- TAG Visites 
 create table _tag_visite (
-  id_visite serial references _visite(visite_id),
-  tag_id serial references _tag(tag_id),
-  primary key (id_visite, tag_id)
+  id_visite serial references _visite(id_visite),
+  id_tag serial references _tag(id_tag),
+  primary key (id_visite, id_tag)
 );
 
 -- ------------------------------------------------------------------------------------------------------- fin
@@ -272,30 +281,30 @@ CREATE TABLE _parc_attraction (
 -- TAG Parcs
 create table _tag_parc_attraction (
   id_parc_attraction serial references _parc_attraction(id_parc_attraction),
-  tag_id serial references _tag(tag_id),
-  primary key (id_parc_attraction, tag_id)
+  id_tag serial references _tag(id_tag),
+  primary key (id_parc_attraction, id_tag)
 );
 
 -- ------------------------------------------------------------------------------------------------------- fin
 ----------------------------------------------------------------------------------------- autres
 -- Table Horaire
 CREATE TABLE _horaire (
-    horaire_id SERIAL PRIMARY KEY,
+    id_horaire SERIAL PRIMARY KEY,
     ouverture TIME NOT NULL,
     fermeture TIME NOT NULL,
     pause_debut TIME,
     pause_fin TIME,
-    offre_id serial REFERENCES _offre(offre_id)
+    id_offre serial REFERENCES _offre(id_offre)
 );
 
 -- Table TARIF public
 CREATE TABLE _tarif_public (
-    tarif_id SERIAL PRIMARY KEY,
+    id_tarif SERIAL PRIMARY KEY,
     titre_tarif VARCHAR(255) NOT NULL,
     age_min INTEGER,
     age_max INTEGER,
     prix FLOAT,
-    offre_id INTEGER NOT NULL
+    id_offre INTEGER NOT NULL
 );
 
 ------------------------------------------------------------------ stockage images
@@ -309,12 +318,12 @@ CREATE TABLE T_Image_Img ( -- IMG = IMaGe
     img_date_creation DATE NOT NULL,
     img_description TEXT,
     img_date_suppression DATE,
-    offre_id INTEGER REFERENCES _offre(offre_id) ON DELETE CASCADE,
+    id_offre INTEGER REFERENCES _offre(id_offre) ON DELETE CASCADE,
     parc_id INTEGER REFERENCES _parc_attraction(id_parc_attraction) ON DELETE CASCADE,
     
-    -- Contrainte d'exclusivité : soit offre_id, soit parc_id doit être non nul, mais pas les deux
+    -- Contrainte d'exclusivité : soit id_offre, soit parc_id doit être non nul, mais pas les deux
     CONSTRAINT chk_offre_parc_exclusif CHECK (
-        (offre_id IS NOT NULL AND parc_id IS NULL) OR 
-        (offre_id IS NULL AND parc_id IS NOT NULL)
+        (id_offre IS NOT NULL AND parc_id IS NULL) OR 
+        (id_offre IS NULL AND parc_id IS NOT NULL)
     )
 );
