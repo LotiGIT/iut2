@@ -146,7 +146,7 @@ from _offre
 join _type_offre on  
 _type_offre.id_type_offre = _offre.id_type_offre;
 
----------------- vue insertion d'une offre 
+---------------- vue création d'une offre 
 
 
 CREATE OR REPLACE VIEW sae_db.vue_creation_offre AS
@@ -154,19 +154,22 @@ CREATE OR REPLACE VIEW sae_db.vue_creation_offre AS
 
 
 
-CREATE OR REPLACE FUNCTION ftg_creation_offre() RETURNS TRIGGER AS $$
-BEGIN
-
-END;
-$$ language 'plpgsql';
-
-
 -- -------------------------------------------------------------------- Connexion Compte
+
+CREATE OR REPLACE VIEW vue_connexion_compte AS
+SELECT email, mdp_hash
+FROM sae_db._compte;
 -- -------------------------------------------------------------------- Déconnexion Compte
 
 
 -- -------------------------------------------------------------------- Recherche Offre
+CREATE OR REPLACE VIEW sae_db.vue_recherche_offre AS
+SELECT est_en_ligne, description_offre, resume_offre, prix_mini, titre, date_mise_a_jour, nom_type_offre
+FROM _offre 
+INNER JOIN _type_offre
+ON _offre.id_type = _type_offre.id_type_offre;
 -- -------------------------------------------------------------------- Tri Offre
+CREATE OR RE
 -- -------------------------------------------------------------------- Filtres multicritères Offre 
 -- -------------------------------------------------------------------- Mise à la une Offre
 -- -------------------------------------------------------------------- Mise en relief Offre

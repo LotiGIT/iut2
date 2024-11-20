@@ -42,7 +42,7 @@ values
   (8, 'test.okok@outlook.com', 'lalaland', '0256521245', 'Associatif', 'Dev Unirfou'),
   (9, 'adresse.mail@hotmail.fr', 'appleEstSupASamsung', '0256988884', 'Organisation Publique', 'PluDI D');
   
-insert into _RIB (code_banque, code_guichet, numero_compte, cle_rib, id_compte)
+insert into _RIB (code_banque, code_guichet, numero_compte, cle_rib, compte_id)
 values 
   ('12345', '67890', '123456789012', '12', 4),
   ('54321', '86589', '236524184856', '36', 5);
@@ -50,7 +50,7 @@ values
 
 -- Insert Offres, 2 chacunes -----------------------------------------------------------------------------------------------
 
-INSERT INTO _restauration (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, gamme_prix, id_pro, id_type_offre)
+INSERT INTO _restauration (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, gamme_prix, id_pro, id_type)
 VALUES 
 (true,
 'Fougères', 
@@ -74,7 +74,7 @@ VALUES
 
 
 
-INSERT INTO _activite (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, duree_activite, age_requis, prestations, id_pro, id_type_offre)
+INSERT INTO _activite (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, duree_activite, age_requis, prestations, id_pro, id_type)
 VALUES 
 (true, 
 'Lannion Parcours', 
@@ -102,7 +102,7 @@ VALUES
 
 
 
-INSERT INTO _spectacle (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, capacite_spectacle, duree_spectacle, id_pro, id_type_offre)
+INSERT INTO _spectacle (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, capacite_spectacle, duree_spectacle, id_pro, id_type)
 VALUES 
 (true, 
 'Carpediem', 
@@ -128,7 +128,7 @@ VALUES
 
 
 
-INSERT INTO _visite (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, duree_visite, guide_visite, id_pro, id_type_offre)
+INSERT INTO _visite (est_en_ligne, titre, description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, duree_visite, guide_visite, id_pro, id_type)
 VALUES 
 (true, 
 'Remontez dans le temps', 
@@ -153,7 +153,7 @@ true, 6, 2),
 true, 7, 3);
 
 
-INSERT INTO _parc_attraction (est_en_ligne, titre,description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, nb_attractions, age_requis, id_pro,id_type_offre)
+INSERT INTO _parc_attraction (est_en_ligne, titre,description_offre, resume_offre, prix_mini, date_creation, date_mise_a_jour, id_adresse, nb_attractions, age_requis, id_pro,id_type)
 VALUES 
 (true, 
 'Pour les gaullois', 
