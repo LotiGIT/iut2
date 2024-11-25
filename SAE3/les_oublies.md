@@ -24,11 +24,16 @@ Elle contient :
 - jours avant la création ne sont pas comptabilisés (logique)
 - facturation d’une Offre remise « en ligne » est faite à partir du jour de remise « en ligne », ne pas facturer deux fois un même jour
 - Options A LA UNE et EN RELIEF sont souscrites pour une durée multiple d’une semaine, sur un maximum de 4 semaines, et planifiées pour lancement le lundi d’une semaine donnée
-- Une option est facturée intégralement dès lors qu’elle est activée 
+- Une option est facturée intégralement dès lors qu’elle est activée d'une durée multiple de 7jours sur 4 semaines, planifiée le lundi
     - Tant que la date de lancement n’est pas atteinte, l’option peut être annulée ou modifiée sans conséquence pour le Professionnel
     - Passée la date de lancement, le Professionnel ne pourra modifier l’option. Il pourra l’annuler (avec effet immédiat côté Front Office) et en souscrire éventuellement une autre, mais l’option annulée lui sera tout de même intégralement facturée.
 
-Pour le propriétaire les montants totaux prévisionnels des Offres et des options à facturer pour le mois en cours. Ils doivent tenir comptedes règles ci-dessus.
+Pour le propriétaire les montants totaux prévisionnels des Offres et des options à facturer pour le mois en cours. Ils doivent tenir compte des règles ci-dessus.
+
+  - Offre gratuite non facturée
+  - Facturation mensuelle (Standard Premium)
+  - Options payantes (Ajoutées au prélèvement mensuel : En relief et A la une)
+  - Montant total prévisionnel 
 
 
 ## Avis
@@ -47,6 +52,8 @@ Le nombre total d'avis non lus et non répondus est affiché. S'il sélectionne 
 - Supprimer sa réponse à un Avis ;
 - « Blacklister » l’Avis (si l’Offre concernée est de type Premium) ;
 - Signaler à l’Administrateur un Avis ne respectant pas les conditions d’utilisation de la PACT.
+
+<b style="color:red">Le pro ne peut pas supprimer une offre en ligne, il peut que demander de la mettre hors ligne</b>
 
 <!-- Conseil SQL : un Avis « blacklisté » n’est plus visible que de son rédacteur et du Professionnel de l’Offre
 concernée, avec une indication visuelle spécifique au « blacklistage ». Si un Avis « blacklisté » est

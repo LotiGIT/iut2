@@ -17,7 +17,7 @@ CREATE SCHEMA sae_db;
 
 SET SCHEMA 'sae_db';
 
--- -------------------------------------------------------------------------------------------Adresse----- début
+-- ------------------------------------------------------------------------------------------------------- Adresse
 -- Table Adresse
 CREATE TABLE _adresse ( -- Léo
     id_adresse SERIAL PRIMARY KEY,
@@ -27,9 +27,7 @@ CREATE TABLE _adresse ( -- Léo
     odonyme VARCHAR(255) NOT NULL,
     complement_adresse VARCHAR(255)
 );
--- ------------------------------------------------------------------------------------------------------- fin
-
--- -----------------------------------------------------------------------------------------Comptes-------début
+-- ------------------------------------------------------------------------------------------------------- Comptes
 -- ARCHITECTURE DES TABLES CI-DESSOUS :
 -- _compte (abstract)
 --     _membre
@@ -45,25 +43,6 @@ CREATE TABLE _compte (
     num_tel VARCHAR(255) NOT NULL,
     id_adresse INTEGER
 );
-
--- Fonction pour vérifier que tous les comptes ont bien des identifiants différents (~priamry key & UNIQUE constraints perdues par inherits)
-CREATE OR REPLACE FUNCTION unique_vals_compte() RETURNS TRIGGER AS $$
-BEGIN
-    -- Check pour l'id
-    IF EXISTS (SELECT 1 FROM sae_db._compte WHERE email = NEW.email) THEN
-        RAISE EXCEPTION 'Erreur : valeur dupliquée pour l''adresse email dans deux comptes différents';
-    END IF;
-    -- Check pour le mail
-    IF EXISTS (SELECT 1 FROM sae_db._compte WHERE email = NEW.email) THEN
-        RAISE EXCEPTION 'Erreur : valeur dupliquée pour l''adresse email dans deux comptes différents';
-    END IF;
-    -- Check pour le numero de tel
-    IF EXISTS (SELECT 1 FROM sae_db._compte WHERE email = NEW.email) THEN
-        RAISE EXCEPTION 'Erreur : valeur dupliquée pour l''adresse email dans deux comptes différents';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
 
 -- Table _membre
 CREATE TABLE _membre (
@@ -100,14 +79,6 @@ ADD CONSTRAINT unique_tel_membre UNIQUE (num_tel);
 ALTER TABLE _membre
 ADD CONSTRAINT fk_membre FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
 
-CREATE TRIGGER tg_unique_vals_compte
-BEFORE INSERT ON _membre
-FOR EACH ROW
-EXECUTE FUNCTION unique_vals_compte();
-
-
-
-
 ALTER TABLE _pro_public
 ADD CONSTRAINT pk_pro_public PRIMARY KEY (id_compte);
 
@@ -119,12 +90,6 @@ ADD CONSTRAINT unique_tel_pro_public UNIQUE (num_tel);
 
 ALTER TABLE _pro_public
 ADD CONSTRAINT fk_pro_public FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
-
-CREATE TRIGGER tg_unique_vals_compte
-BEFORE INSERT ON _pro_public
-FOR EACH ROW
-EXECUTE FUNCTION unique_vals_compte();
-
 
 ALTER TABLE _pro_prive
 ADD CONSTRAINT pk_pro_prive PRIMARY KEY (id_compte);
@@ -138,14 +103,10 @@ ADD CONSTRAINT unique_tel_pro_prive UNIQUE (num_tel);
 ALTER TABLE _pro_prive
 ADD CONSTRAINT fk_pro_prive FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
 
-CREATE TRIGGER tg_unique_vals_compte
-BEFORE INSERT ON _pro_prive
-FOR EACH ROW
-EXECUTE FUNCTION unique_vals_compte();
 
--- ------------------------------------------------------------------------------------------------------- fin
 
--- ----------------------------------------------------------------------------------------------RIB------ début
+
+-- ------------------------------------------------------------------------------------------------------- RIB
 -- Table RIB
 CREATE TABLE _RIB ( -- Léo
     id_rib SERIAL PRIMARY KEY,
@@ -156,23 +117,35 @@ CREATE TABLE _RIB ( -- Léo
     id_compte SERIAL REFERENCES _pro_prive (id_compte) UNIQUE
 );
 
--- ------------------------------------------------------------------------------------------------------- fin
-
--- -----------------------------------------------------------------------------------------------TAG----- début
+-- ------------------------------------------------------------------------------------------------------- TAG
 -- Table TAG
 
 CREATE TABLE _tag ( -- Antoine
     id_tag SERIAL PRIMARY KEY,
     nom_tag VARCHAR(255) NOT NULL
 );
--- -------------------------------------------------------------------------------------------------------- fin
+-- ------------------------------------------------------------------------------------------------------- Option
+CREATE TABLE _option (
+    nom VARCHAR(50) PRIMARY KEY NOT NULL, -- A la une ou En relief
+    prix_ht FLOAT NOT NULL,
+    tva FLOAT NOT NULL,
+    prix_ttc FLOAT,
+    prix_unitaire FLOAT NOT NULL
 
--- ---------------------------------------------------------------------------------------------Offre----- début
--- Table _type_offre (gratuite OU standard OU prenium)
+);
+
+-- ------------------------------------------------------------------------------------------------------- Souscription
+CREATE TABLE _souscription (
+    id_souscription INTEGER PRIMARY KEY,
+    nb_semaines INTEGER NOT NULL,
+    date_lancement DATE NOT NULL,
+);
+-- ------------------------------------------------------------------------------------------------------- Offre
+-- Table _type_offre (gratuite OU standard OU premium)
 -- Antoine
 create table _type_offre (
     id_type_offre SERIAL PRIMARY KEY NOT NULL,
-    nom_type_offre VARCHAR(255) NOT NULL
+    nom VARCHAR(255) NOT NULL
 );
 
 -- ARCHITECTURE DES ENFANTS DE _offre :
@@ -199,77 +172,258 @@ CREATE TABLE _offre (
     id_adresse SERIAL REFERENCES _adresse (id_adresse),
     option VARCHAR(10)
 );
-
--- ----------------------------------------------------------------------------------------------Avis----- début
-
-CREATE TABLE _avis ( -- Maxime
-  id_avis int primary key,  
-  date_publication DATE,
-  date_experience DATE,
-  titre varchar(50),
-  commentaire varchar(1024),
-  id_compte int NOT NULL REFERENCES _compte(id_compte),
-  id_offre int NOT NULL REFERENCES _offre(id_offre),
-  id_avis_reponse int REFERENCES _avis(id_avis) -- si défini = il faut s'assurer que l'id_offre est le même dans les 2 avis; il faut s'assurer que l'avis auquel répond l'avis du pro ne soit pas une réponse; il faut s'assurer que l'id_compte de celui qui répond soit un pro
+-- ------------------------------------------------------------------------------------------------------- Relation ternaire entre Offre, Souscription et Option
+-- Création de la table de relation ternaire entre _offre, _souscription et _option
+CREATE TABLE _offre_souscription_option (
+    id_offre INTEGER NOT NULL,
+    id_souscription INTEGER NOT NULL,
+    nom_option VARCHAR(50) NOT NULL,
+    date_association DATE NOT NULL DEFAULT CURRENT_DATE,
+    PRIMARY KEY (id_offre, id_souscription, nom_option),
+    FOREIGN KEY (id_offre) REFERENCES _offre (id_offre) ON DELETE CASCADE,
+    FOREIGN KEY (id_souscription) REFERENCES _souscription (id_souscription) ON DELETE CASCADE,
+    FOREIGN KEY (nom_option) REFERENCES _option (nom) ON DELETE CASCADE
 );
 
--- Création de la fonction pour le trigger
-CREATE OR REPLACE FUNCTION check_contraintes_avis()
-RETURNS TRIGGER AS $$
-DECLARE
-    auteur_offre INT;
-BEGIN
-    -- Récupérer l'auteur de l'offre
-    SELECT id_pro INTO auteur_offre
-    FROM _offre
-    WHERE id_offre = NEW.id_offre;
+--  ------------------------------------------------------------------------------------------------------ TAGs Offre
+-- Maxime
+CREATE TABLE _tag_offre (
+    id_offre SERIAL REFERENCES _offre (id_offre),
+    id_tag SERIAL REFERENCES _tag (id_tag),
+    PRIMARY KEY (id_offre, id_tag)
+);
+-- ------------------------------------------------------------------------------------------------------- Avis
 
-    -- Si l'avis est une réponse (id_avis_reponse n'est pas nul)
-    IF NEW.id_avis_reponse IS NOT NULL THEN
-        -- Vérifier que l'auteur de l'avis est l'auteur de l'offre
-        IF NEW.id_compte != auteur_offre THEN
-            RAISE EXCEPTION 'Seul le professionnel peut répondre à un avis.';
-        END IF;
-    ELSE
-        -- Sinon, c'est un avis initial
-        -- Vérifier que l'auteur de l'avis n'est pas l'auteur de l'offre
-        IF NEW.id_compte = auteur_offre THEN
-            RAISE EXCEPTION 'Le professionnel ne peut pas laisser un avis sur sa propre offre.';
-        END IF;
-    END IF;
+-- Création de la table _avis
+CREATE TABLE _avis (
+  id_avis SERIAL PRIMARY KEY,  
+  date_publication DATE NOT NULL,
+  date_experience DATE NOT NULL,
+  titre VARCHAR(50),
+  commentaire VARCHAR(1024),
+  id_compte INT NOT NULL,
+  id_offre INT NOT NULL,
+  id_avis_reponse INT REFERENCES _avis(id_avis),
+  -- Contrainte pour empêcher plusieurs avis initiaux d'un même membre sur une offre
+  CONSTRAINT unique_avis_per_member UNIQUE (id_compte, id_offre)
+);
 
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- ------------------------------------------------------------------------------------------------------- Facture
+-- Maxime
+CREATE TABLE _facture (
+    id_facture SERIAL PRIMARY KEY,
+    jour_en_ligne DATE NOT NULL,
+    id_offre SERIAL REFERENCES _offre (id_offre)
+);
+-- ------------------------------------------------------------------------------------------------------- Logs 
+CREATE TABLE _log_changement_status ( -- Maxime
+    id SERIAL PRIMARY KEY,
+    id_offre SERIAL REFERENCES _offre (id_offre),
+    date_changement DATE NOT NULL
+);
 
--- Création du trigger
-CREATE TRIGGER tg_check_contraintes_avis
-BEFORE INSERT ON _avis
-FOR EACH ROW
-EXECUTE FUNCTION check_contraintes_avis();
+-- ------------------------------------------------------------------------------------------------------- Restaurants
+-- Type de repas 'petit dej' 'diner' etc...
+create table _type_repas ( -- Baptiste
+    id_type_repas SERIAL PRIMARY KEY,
+    nom_type_repas VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Table _restauration (hérite _offre)
+-- (MVC) Léo
+CREATE TABLE _restauration (
+    gamme_prix VARCHAR(3) NOT NULL,
+    id_type_repas INTEGER REFERENCES _type_repas (id_type_repas)
+) INHERITS (_offre);
+
+-- Rajout des contraintes perdues pour _restauration à cause de l'héritage
+ALTER TABLE _restauration
+ADD CONSTRAINT pk_restauration PRIMARY KEY (id_offre);
+
+ALTER TABLE _restauration
+ADD CONSTRAINT fk_restauration_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
+
+ALTER TABLE _restauration
+ADD CONSTRAINT fk_restauration_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
+
+-- Lien entre restauration et type_repas
+create table _restaurant_type_repas ( -- Baptiste
+    id_offre SERIAL REFERENCES _restauration (id_offre) ON DELETE CASCADE,
+    id_type_repas SERIAL REFERENCES _type_repas (id_type_repas) ON DELETE CASCADE,
+    PRIMARY KEY (id_offre, id_type_repas)
+);
+
+-- Type de restaurant : gastronomie, kebab, etc..
+create table _tag_restaurant (
+    -- Maxime
+    id_tag_restaurant SERIAL PRIMARY KEY,
+    nom_tag VARCHAR(255) NOT NULL
+);
+
+-- table 1 restaurant <-> 1..* tag
+-- Maxime
+create table _tag_restaurant_restauration (
+    id_offre SERIAL REFERENCES _restauration (id_offre),
+    id_tag_restaurant SERIAL REFERENCES _tag_restaurant (id_tag_restaurant),
+    PRIMARY KEY (id_offre, id_tag_restaurant)
+);
+-- ------------------------------------------------------------------------------------------------------- Activités
+-- Table _activite (hérite de _offre)
+-- (MVC) Léo
+CREATE TABLE _activite (
+    duree_activite TIME,
+    age_requis INTEGER,
+    prestations VARCHAR(255)
+) INHERITS (_offre);
+
+-- Rajout des contraintes perdues pour _activite à cause de l'héritage
+ALTER TABLE _activite
+ADD CONSTRAINT pk_activite PRIMARY KEY (id_offre);
+
+ALTER TABLE _activite
+ADD CONSTRAINT fk_activite_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
+
+ALTER TABLE _activite
+ADD CONSTRAINT fk_activite_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
 
 
--- Insérer des offres
-INSERT INTO _offre (id_offre, id_pro) VALUES (1, 100), (2, 101);
 
--- Insérer des avis initiaux par des membres
-INSERT INTO _avis (id_avis, date_publication, date_experience, titre, commentaire, id_compte, id_offre)
-VALUES (1, '2024-11-20', '2024-11-15', 'Super Offre', 'Très satisfait', 1, 1); -- OK (membre)
+-- ------------------------------------------------------------------------------------------------------- TAG Activité
+create table _tag_activite ( -- Maxime
+    id_offre SERIAL REFERENCES _activite (id_offre),
+    id_tag SERIAL REFERENCES _tag (id_tag),
+    PRIMARY KEY (id_offre, id_tag)
+);
+-- ------------------------------------------------------------------------------------------------------- Spectacles
+-- Table _spectacle (hérite de _offre)
+CREATE TABLE _spectacle ( -- (MVC) Léo
+    capacite_spectacle INTEGER,
+    duree_spectacle TIME
+) INHERITS (_offre);
 
--- Insérer une réponse par un professionnel
-INSERT INTO _avis (id_avis, date_publication, date_experience, titre, commentaire, id_compte, id_offre, id_avis_reponse)
-VALUES (2, '2024-11-21', '2024-11-15', 'Réponse', 'Merci pour votre retour', 1, 1, 1); -- OK (professionnel)
+-- Rajout des contraintes perdues pour _spectacle à cause de l'héritage
+ALTER TABLE _spectacle
+ADD CONSTRAINT pk_spectacle PRIMARY KEY (id_offre);
 
--- Essayer un avis initial par un professionnel sur sa propre offre (erreur attendue)
-INSERT INTO _avis (id_avis, date_publication, date_experience, titre, commentaire, id_compte, id_offre)
-VALUES (3, '2024-11-22', '2024-11-15', 'Très bien', 'Je suis content de mon travail', 2, 1); -- ERREUR
+ALTER TABLE _spectacle
+ADD CONSTRAINT fk_spectacle_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
 
--- Essayer une réponse par un membre (erreur attendue)
-INSERT INTO _avis (id_avis, date_publication, date_experience, titre, commentaire, id_compte, id_offre, id_avis_reponse)
-VALUES (4, '2024-11-22', '2024-11-15', 'Réponse', 'Je suis d''accord', 200, 1, 1); -- ERREUR
+ALTER TABLE _spectacle
+ADD CONSTRAINT fk_spectacle_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
 
--- ------------------------------------------------------------------------------------------------------ fin
 
+
+-- ------------------------------------------------------------------------------------------------------- TAG Spectacles
+create table _tag_spectacle ( -- Maxime
+    id_offre SERIAL REFERENCES _spectacle (id_offre),
+    id_tag SERIAL REFERENCES _tag (id_tag),
+    PRIMARY KEY (id_offre, id_tag)
+);
+-- ------------------------------------------------------------------------------------------------------- Visites
+-- Table _visite (hérite de _offre)
+-- (MVC) Léo
+CREATE TABLE _visite (
+    duree_visite TIME,
+    guide_visite BOOLEAN
+) INHERITS (_offre);
+
+-- Rajout des contraintes perdues pour _visite à cause de l'héritage
+ALTER TABLE _visite ADD CONSTRAINT pk_visite PRIMARY KEY (id_offre);
+
+ALTER TABLE _visite
+ADD CONSTRAINT fk_visite_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
+
+ALTER TABLE _visite
+ADD CONSTRAINT fk_visite_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
+
+
+
+-- langues parlées durant la visite
+CREATE TABLE _langue ( -- Antoine
+    id_langue SERIAL PRIMARY KEY,
+    nom_langue VARCHAR(255)
+);
+
+-- Table de lien pour les langues parlées durant les visites
+CREATE TABLE _visite_langue ( -- Antoine
+    id_offre SERIAL REFERENCES _visite (id_offre),
+    id_langue SERIAL REFERENCES _langue (id_langue)
+);
+
+-- ------------------------------------------------------------------------------------------------------- TAG Visites
+create table _tag_visite ( -- Maxime
+    id_offre SERIAL REFERENCES _visite (id_offre),
+    id_tag SERIAL REFERENCES _tag (id_tag),
+    PRIMARY KEY (id_offre, id_tag)
+);
+-- ------------------------------------------------------------------------------------------------------- Parcs d'attractions
+-- Table _parc_attraction (hérite de _offre)
+CREATE TABLE _parc_attraction ( -- (MVC) Léo
+    nb_attractions INTEGER,
+    age_requis INTEGER
+) INHERITS (_offre);
+
+-- Rajout des contraintes perdues pour _parc_attraction à cause de l'héritage
+ALTER TABLE _parc_attraction
+ADD CONSTRAINT pk_parc_attraction PRIMARY KEY (id_offre);
+
+ALTER TABLE _parc_attraction
+ADD CONSTRAINT fk_parc_attraction_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
+
+ALTER TABLE _parc_attraction
+ADD CONSTRAINT fk_parc_attraction_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
+
+-- ------------------------------------------------------------------------------------------------------- TAG Parcs
+create table _tag_parc_attraction ( -- Maxime
+    id_offre SERIAL REFERENCES _parc_attraction (id_offre),
+    id_tag SERIAL REFERENCES _tag (id_tag),
+    PRIMARY KEY (id_offre, id_tag)
+);
+-- ------------------------------------------------------------------------------------------------------- Horaire
+-- Table Horaire
+CREATE TABLE _horaire ( -- Antoine
+    id_horaire SERIAL PRIMARY KEY,
+    ouverture TIME NOT NULL,
+    fermeture TIME NOT NULL,
+    pause_debut TIME,
+    pause_fin TIME,
+    id_offre SERIAL REFERENCES _offre (id_offre)
+);
+-- ------------------------------------------------------------------------------------------------------- Tarif Publique
+-- Table TARIF public
+CREATE TABLE _tarif_public ( -- Baptiste
+    id_tarif SERIAL PRIMARY KEY,
+    titre_tarif VARCHAR(255) NOT NULL,
+    age_min INTEGER,
+    age_max INTEGER,
+    prix INTEGER,
+    id_offre INTEGER NOT NULL
+);
+
+-- ------------------------------------------------------------------------------------------------------- Tarif Facture
+
+-- ------------------------------------------------------------------------------------------------------- Images
+-- Table T_IMAGE_IMG
+CREATE TABLE T_Image_Img (
+    -- IMG = IMaGe
+    img_path VARCHAR(255) PRIMARY KEY,
+    img_date_creation DATE NOT NULL,
+    img_description TEXT,
+    img_date_suppression DATE,
+    id_offre INTEGER REFERENCES _offre (id_offre) ON DELETE CASCADE,
+    id_parc INTEGER REFERENCES _parc_attraction (id_offre) ON DELETE CASCADE,
+    -- Contrainte d'exclusivité : soit offre_id, soit id_parc doit être non nul, mais pas les deux
+    CONSTRAINT chk_offre_parc_exclusif CHECK (
+        (
+            id_offre IS NOT NULL
+            AND id_parc IS NULL
+        )
+        OR (
+            id_offre IS NULL
+            AND id_parc IS NOT NULL
+        )
+    )
+);
 -- Sécurité --------------------------------------------------------------
 
 /*
@@ -297,280 +451,3 @@ USING (id_pro = current_setting('app.current_professional')::INTEGER);
 -- assure que même les supers utilisateurs respectent la politique de sécurité
 ALTER TABLE _offre FORCE ROW LEVEL SECURITY;
 */
---------------------------------------------------------------------------------- fin
-
--- TAGs Offre ------------------------------------------------------------ début
--- Maxime
-CREATE TABLE _tag_offre (
-    id_offre SERIAL REFERENCES _offre (id_offre),
-    id_tag SERIAL REFERENCES _tag (id_tag),
-    PRIMARY KEY (id_offre, id_tag)
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
--- --------------------------------------------------------------------------------------------Facture---- début
--- Maxime
-CREATE TABLE _facture (
-    id_facture SERIAL PRIMARY KEY,
-    jour_en_ligne DATE NOT NULL,
-    id_offre SERIAL REFERENCES _offre (id_offre)
-);
-
--- ------------------------------------------------------------------------------------------------------- fin
-
-
-
--- -----------------------------------------------------------------------------------------------Logs---- début
-CREATE TABLE _log_changement_status ( -- Maxime
-    id SERIAL PRIMARY KEY,
-    id_offre SERIAL REFERENCES _offre (id_offre),
-    date_changement DATE NOT NULL
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
-
-
--- Fonction pour vérifier une clé étrangère manuellement, car sinon pb avec raisons de double héritage
-CREATE OR REPLACE FUNCTION fk_vers_professionnel() RETURNS TRIGGER AS $$
-BEGIN
-    -- Alerter quand la clé étrangère n'est pas respecté
-    IF NOT EXISTS (SELECT 1 FROM _pro_prive WHERE id_compte = NEW.id_pro)
-    AND NOT EXISTS (SELECT 1 FROM _pro_public WHERE id_compte = NEW.id_pro) THEN
-        RAISE EXCEPTION 'Foreign key violation: id_pro does not exist in _pro_prive or _pro_public';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- -------------------------------------------------------------------------------------Restaurants------- début
--- Type de repas 'petit dej' 'diner' etc...
-create table _type_repas ( -- Baptiste
-    id_type_repas SERIAL PRIMARY KEY,
-    nom_type_repas VARCHAR(255) NOT NULL UNIQUE
-);
-
--- Table _restauration (hérite _offre)
--- (MVC) Léo
-CREATE TABLE _restauration (
-    gamme_prix VARCHAR(3) NOT NULL,
-    id_type_repas INTEGER REFERENCES _type_repas (id_type_repas)
-) INHERITS (_offre);
-
--- Rajout des contraintes perdues pour _restauration à cause de l'héritage
-ALTER TABLE _restauration
-ADD CONSTRAINT pk_restauration PRIMARY KEY (id_offre);
-
-ALTER TABLE _restauration
-ADD CONSTRAINT fk_restauration_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
-
-ALTER TABLE _restauration
-ADD CONSTRAINT fk_restauration_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
-
-CREATE TRIGGER fk_restauration_professionnel
-BEFORE INSERT ON _restauration
-FOR EACH ROW
-EXECUTE FUNCTION fk_vers_professionnel();
-
--- ALTER TABLE _restauration
--- ADD CONSTRAINT fk_restauration_professionnel FOREIGN KEY (id_pro) REFERENCES _pro_prive (id_compte);
-
--- Lien entre restauration et type_repas
-create table _restaurant_type_repas ( -- Baptiste
-    id_offre SERIAL REFERENCES _restauration (id_offre) ON DELETE CASCADE,
-    id_type_repas SERIAL REFERENCES _type_repas (id_type_repas) ON DELETE CASCADE,
-    PRIMARY KEY (id_offre, id_type_repas)
-);
-
--- Type de restaurant : gastronomie, kebab, etc..
-create table _tag_restaurant (
-    -- Maxime
-    id_tag_restaurant SERIAL PRIMARY KEY,
-    nom_tag VARCHAR(255) NOT NULL
-);
-
--- table 1 restaurant <-> 1..* tag
--- Maxime
-create table _tag_restaurant_restauration (
-    id_offre SERIAL REFERENCES _restauration (id_offre),
-    id_tag_restaurant SERIAL REFERENCES _tag_restaurant (id_tag_restaurant),
-    PRIMARY KEY (id_offre, id_tag_restaurant)
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
--- ----------------------------------------------------------------------------------------Activités------ début
--- Table _activite (hérite de _offre)
--- (MVC) Léo
-CREATE TABLE _activite (
-    duree_activite TIME,
-    age_requis INTEGER,
-    prestations VARCHAR(255)
-) INHERITS (_offre);
-
--- Rajout des contraintes perdues pour _activite à cause de l'héritage
-ALTER TABLE _activite
-ADD CONSTRAINT pk_activite PRIMARY KEY (id_offre);
-
-ALTER TABLE _activite
-ADD CONSTRAINT fk_activite_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
-
-ALTER TABLE _activite
-ADD CONSTRAINT fk_activite_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
-
-CREATE TRIGGER fk_restauration_professionnel
-BEFORE INSERT ON _activite
-FOR EACH ROW
-EXECUTE FUNCTION fk_vers_professionnel();
-
--- TAGs Activité---------------------------------------------
-create table _tag_activite ( -- Maxime
-    id_offre SERIAL REFERENCES _activite (id_offre),
-    id_tag SERIAL REFERENCES _tag (id_tag),
-    PRIMARY KEY (id_offre, id_tag)
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
--- -----------------------------------------------------------------------------------------Spectacles---- début
--- Table _spectacle (hérite de _offre)
-CREATE TABLE _spectacle ( -- (MVC) Léo
-    capacite_spectacle INTEGER,
-    duree_spectacle TIME
-) INHERITS (_offre);
-
--- Rajout des contraintes perdues pour _spectacle à cause de l'héritage
-ALTER TABLE _spectacle
-ADD CONSTRAINT pk_spectacle PRIMARY KEY (id_offre);
-
-ALTER TABLE _spectacle
-ADD CONSTRAINT fk_spectacle_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
-
-ALTER TABLE _spectacle
-ADD CONSTRAINT fk_spectacle_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
-
-CREATE TRIGGER fk_restauration_professionnel
-BEFORE INSERT ON _spectacle
-FOR EACH ROW
-EXECUTE FUNCTION fk_vers_professionnel();
-
--- TAG Spectacles
-create table _tag_spectacle ( -- Maxime
-    id_offre SERIAL REFERENCES _spectacle (id_offre),
-    id_tag SERIAL REFERENCES _tag (id_tag),
-    PRIMARY KEY (id_offre, id_tag)
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
--- --------------------------------------------------------------------------------------------Visites---- début
--- Table _visite (hérite de _offre)
--- (MVC) Léo
-CREATE TABLE _visite (
-    duree_visite TIME,
-    guide_visite BOOLEAN
-) INHERITS (_offre);
-
--- Rajout des contraintes perdues pour _visite à cause de l'héritage
-ALTER TABLE _visite ADD CONSTRAINT pk_visite PRIMARY KEY (id_offre);
-
-ALTER TABLE _visite
-ADD CONSTRAINT fk_visite_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
-
-ALTER TABLE _visite
-ADD CONSTRAINT fk_visite_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
-
-CREATE TRIGGER fk_restauration_professionnel
-BEFORE INSERT ON _visite
-FOR EACH ROW
-EXECUTE FUNCTION fk_vers_professionnel();
-
--- langues parlées durant la visite
-CREATE TABLE _langue ( -- Antoine
-    id_langue SERIAL PRIMARY KEY,
-    nom_langue VARCHAR(255)
-);
-
--- Table de lien pour les langues parlées durant les visites
-CREATE TABLE _visite_langue ( -- Antoine
-    id_offre SERIAL REFERENCES _visite (id_offre),
-    id_langue SERIAL REFERENCES _langue (id_langue)
-);
-
--- TAG Visites
-create table _tag_visite ( -- Maxime
-    id_offre SERIAL REFERENCES _visite (id_offre),
-    id_tag SERIAL REFERENCES _tag (id_tag),
-    PRIMARY KEY (id_offre, id_tag)
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
--- -------------------------------------------------------------------------------Parcs d'attractions----- début
--- Table _parc_attraction (hérite de _offre)
-CREATE TABLE _parc_attraction ( -- (MVC) Léo
-    nb_attractions INTEGER,
-    age_requis INTEGER
-) INHERITS (_offre);
-
--- Rajout des contraintes perdues pour _parc_attraction à cause de l'héritage
-ALTER TABLE _parc_attraction
-ADD CONSTRAINT pk_parc_attraction PRIMARY KEY (id_offre);
-
-ALTER TABLE _parc_attraction
-ADD CONSTRAINT fk_parc_attraction_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse);
-
-ALTER TABLE _parc_attraction
-ADD CONSTRAINT fk_parc_attraction_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
-
-CREATE TRIGGER fk_restauration_professionnel
-BEFORE INSERT ON _parc_attraction
-FOR EACH ROW
-EXECUTE FUNCTION fk_vers_professionnel();
-
--- TAG Parcs
-create table _tag_parc_attraction ( -- Maxime
-    id_offre SERIAL REFERENCES _parc_attraction (id_offre),
-    id_tag SERIAL REFERENCES _tag (id_tag),
-    PRIMARY KEY (id_offre, id_tag)
-);
--- ------------------------------------------------------------------------------------------------------- fin
-
------------------------------------------------------------------------------------------ autres -- début
--- Table Horaire
-CREATE TABLE _horaire ( -- Antoine
-    id_horaire SERIAL PRIMARY KEY,
-    ouverture TIME NOT NULL,
-    fermeture TIME NOT NULL,
-    pause_debut TIME,
-    pause_fin TIME,
-    id_offre SERIAL REFERENCES _offre (id_offre)
-);
-
--- Table TARIF public
-CREATE TABLE _tarif_public ( -- Baptiste
-    id_tarif SERIAL PRIMARY KEY,
-    titre_tarif VARCHAR(255) NOT NULL,
-    age_min INTEGER,
-    age_max INTEGER,
-    prix INTEGER,
-    id_offre INTEGER NOT NULL
-);
-
--- Table T_IMAGE_IMG
-CREATE TABLE T_Image_Img (
-    -- IMG = IMaGe
-    img_path VARCHAR(255) PRIMARY KEY,
-    img_date_creation DATE NOT NULL,
-    img_description TEXT,
-    img_date_suppression DATE,
-    id_offre INTEGER REFERENCES _offre (id_offre) ON DELETE CASCADE,
-    id_parc INTEGER REFERENCES _parc_attraction (id_offre) ON DELETE CASCADE,
-    -- Contrainte d'exclusivité : soit offre_id, soit id_parc doit être non nul, mais pas les deux
-    CONSTRAINT chk_offre_parc_exclusif CHECK (
-        (
-            id_offre IS NOT NULL
-            AND id_parc IS NULL
-        )
-        OR (
-            id_offre IS NULL
-            AND id_parc IS NOT NULL
-        )
-    )
-);
--- ------------------------------------------------------------------------------------------------------- fin
