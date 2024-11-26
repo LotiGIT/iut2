@@ -138,7 +138,7 @@ CREATE TABLE _option (
 CREATE TABLE _souscription (
     id_souscription INTEGER PRIMARY KEY,
     nb_semaines INTEGER NOT NULL,
-    date_lancement DATE NOT NULL,
+    date_lancement DATE NOT NULL
 );
 -- ------------------------------------------------------------------------------------------------------- Offre
 -- Table _type_offre (gratuite OU standard OU premium)
@@ -401,6 +401,25 @@ CREATE TABLE _tarif_public ( -- Baptiste
 );
 
 -- ------------------------------------------------------------------------------------------------------- Tarif Facture
+
+
+
+-- ------------------------------------------------------------------------------------------------------- Prestations
+CREATE TABLE _prestation (
+    id_prestation SERIAL PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL,
+    inclus BOOLEAN,
+    id_pro INTEGER NOT NULL REFERENCES _professionnel(id_compte) ON DELETE CASCADE -- Propriétaire
+);
+
+
+-- ------------------------------------------------------------------------------------------------------- Liaison prestation et activité     **** Prestation à revoir, ça ne marche pas ****
+CREATE TABLE _activite_prestation (
+    id_activite INTEGER NOT NULL REFERENCES _activite(id_offre) ON DELETE CASCADE,
+    id_prestation INTEGER NOT NULL REFERENCES _prestation(id_prestation) ON DELETE CASCADE,
+    PRIMARY KEY (id_activite, id_prestation)
+);
+
 
 -- ------------------------------------------------------------------------------------------------------- Images
 -- Table T_IMAGE_IMG

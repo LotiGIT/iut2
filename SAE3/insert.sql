@@ -461,3 +461,11 @@ VALUES (
         5
     );
     
+-- insertion dans la relation ternaire
+INSERT INTO _offre_souscription_option (id_offre, id_souscription, nom_option)
+VALUES (1, 2, 'A la une');
+
+
+
+
+    

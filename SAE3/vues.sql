@@ -1,5 +1,8 @@
 set schema 'sae_db';
 
+
+
+-- vue pour afficher les prestations disponibles pour un professionnel en particulier
 -- vue pour accéder à un compte pro mais sans voir son rib
 
 CREATE VIEW vue_pro_prive_sans_rib AS

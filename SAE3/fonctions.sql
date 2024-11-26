@@ -5,6 +5,49 @@ set schema 'sae_db';
                   Fonctions            
 */
 
+-- vérifie que seul l'activite puisse avoir une ou des prestations
+
+CREATE OR REPLACE FUNCTION creer_prestation(
+    p_nom VARCHAR,
+    p_inclus BOOLEAN,
+    p_id_pro INTEGER,
+    p_id_activite INTEGER
+)
+RETURNS INTEGER AS $$
+DECLARE
+    prestation_existante_id INTEGER;
+    new_prestation_id INTEGER;
+BEGIN
+    -- Vérifier si la prestation existe déjà dans la base (même nom)
+    SELECT id_prestation
+    INTO prestation_existante_id
+    FROM _prestation
+    WHERE nom = p_nom;
+
+    -- Si la prestation existe, on réutilise son ID
+    IF prestation_existante_id IS NOT NULL THEN
+        -- Associer cette prestation à l'activité donnée
+        INSERT INTO _activite_prestation (id_activite, id_prestation)
+        VALUES (p_id_activite, prestation_existante_id)
+        ON CONFLICT DO NOTHING;
+
+        RETURN prestation_existante_id; -- Retourner l'ID de la prestation existante
+    END IF;
+
+    -- Sinon, insérer une nouvelle prestation
+    INSERT INTO _prestation (nom, inclus, id_pro)
+    VALUES (p_nom, p_inclus, p_id_pro)
+    RETURNING id_prestation INTO new_prestation_id;
+
+    -- Associer la nouvelle prestation à l'activité donnée
+    INSERT INTO _activite_prestation (id_activite, id_prestation)
+    VALUES (p_id_activite, new_prestation_id);
+
+    RETURN new_prestation_id; -- Retourner l'ID de la nouvelle prestation
+END;
+$$ LANGUAGE plpgsql;
+
+
 
 -- vérifie que l'email est valide
 CREATE OR REPLACE FUNCTION verifier_email_connexion(email_input VARCHAR)
@@ -176,7 +219,10 @@ $$ LANGUAGE plpgsql;
                   Triggers           
 */
 
-
+CREATE TRIGGER tg_creer_prestation
+BEFORE INSERT OR UPDATE ON _prestation
+FOR EACH ROW
+EXECUTE FUNCTION creer_prestation();
 
 -- Trigger pour valider les règles métier
 CREATE TRIGGER tg_check_contraintes_avis
