@@ -5,7 +5,7 @@ set schema 'sae_db';
                   Fonctions            
 */
 
--- vérifie que seul l'activite puisse avoir une ou des prestations
+-- la prestation est créée par un pro et insérée dans la bdd, si un pro différent créé la mêm eprestation alors la prestation est réutilisée et non créée.
 
 CREATE OR REPLACE FUNCTION creer_prestation(
     p_nom VARCHAR,
@@ -115,7 +115,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Vérification des règles métier (avis/réponses)
+-- Vérification des règles métier (avis/réponses)  --- la fonction est à revoir à cause du nouveau diagramme
 CREATE OR REPLACE FUNCTION check_contraintes_avis()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -167,7 +167,7 @@ BEGIN
     -- Alerter quand la clé étrangère n'est pas respecté
     IF NOT EXISTS (SELECT 1 FROM _pro_prive WHERE id_compte = NEW.id_pro)
     AND NOT EXISTS (SELECT 1 FROM _pro_public WHERE id_compte = NEW.id_pro) THEN
-        RAISE EXCEPTION 'Foreign key violation: id_pro does not exist in _pro_prive or _pro_public';
+        RAISE EXCEPTION 'Violation de la foreignn key: id_pro n existe pas dans _pro_prive ou _pro_public';
     END IF;
     RETURN NEW;
 END;
@@ -218,11 +218,6 @@ $$ LANGUAGE plpgsql;
 
                   Triggers           
 */
-
-CREATE TRIGGER tg_creer_prestation
-BEFORE INSERT OR UPDATE ON _prestation
-FOR EACH ROW
-EXECUTE FUNCTION creer_prestation();
 
 -- Trigger pour valider les règles métier
 CREATE TRIGGER tg_check_contraintes_avis

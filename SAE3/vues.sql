@@ -2,7 +2,39 @@ set schema 'sae_db';
 
 
 
--- vue pour afficher les prestations disponibles pour un professionnel en particulier
+-- vue pour da la facture sans les montants totaux 
+
+CREATE OR REPLACE VIEW vue_facture AS
+SELECT 
+    f.numero AS "Numéro de Facture",
+    f.date_emission AS "Date d'Émission",
+    f.date_prestation AS "Date de Prestation",
+    f.date_echeance AS "Date d'Échéance",
+    f.designation AS "Service",
+    CASE 
+        WHEN f.quantite IS NOT NULL AND THEN CONCAT(f.quantite, ' semaines')
+        WHEN t.nom IS NOT NULL THEN CONCAT(f.quantite, ' jours')
+        ELSE 'N/A'
+    END AS "Quantité",
+    f.prix_unitaire_HT AS "Prix Unitaire HT (€)",
+    f.prix_unitaire_TTC AS "Prix Unitaire TTC (€)",
+    -- Calcul des montants totaux dynamiquement
+    f.quantite * f.prix_unitaire_HT AS "Montant HT (€)",
+    f.quantite * f.prix_unitaire_TTC AS "Montant TTC (€)"
+FROM _facture f
+LEFT JOIN _option o ON f.designation = o.nom
+LEFT JOIN _type_offre t ON f.designation = t.nom;
+
+-- vue de la facture avec les montants totaux 
+CREATE OR REPLACE VIEW vue_facture_totaux AS
+SELECT 
+    numero AS "Numéro de Facture",
+    SUM(quantite * prix_unitaire_HT) AS "Total HT (€)",
+    SUM(quantite * prix_unitaire_TTC) AS "Total TTC (€)"
+FROM _facture
+GROUP BY numero;
+
+
 -- vue pour accéder à un compte pro mais sans voir son rib
 
 CREATE VIEW vue_pro_prive_sans_rib AS
@@ -19,7 +51,6 @@ JOIN
 JOIN 
     _adresse a ON c.id_adresse = a.id_adresse;
     
-
 -- créer une vue des offres que les membres et visiteurs verront
 CREATE VIEW vue_offres_publiques AS
 SELECT 
@@ -84,7 +115,66 @@ FROM _offre
 INNER JOIN _type_offre
 ON _offre.id_type_offre = _type_offre.id_type_offre;
 
--- -------------------------------------------------------------------- Tri Offre
+-- -------------------------------------------------------------------- id compte affilié au compte
+
+CREATE OR REPLACE VIEW vue_comptes AS
+SELECT 
+    m.id_compte AS id_compte,
+    'Membre' AS type_compte,
+    m.email,
+    m.pseudo AS nom_ou_pseudo
+FROM 
+    _membre m
+
+UNION ALL
+
+SELECT 
+    ppr.id_compte AS id_compte,
+    'Professionnel Privé' AS type_compte,
+    ppr.email,
+    ppr.nom_pro AS nom_ou_pseudo
+FROM 
+    _pro_prive ppr
+
+UNION ALL
+
+SELECT 
+    ppu.id_compte AS id_compte,
+    'Professionnel Public' AS type_compte,
+    ppu.email,
+    ppu.nom_pro AS nom_ou_pseudo
+FROM 
+    _pro_public ppu;
+-- -------------------------------------------------------------------- offre lié au pro
+CREATE OR REPLACE VIEW vue_pro_offres AS
+SELECT 
+    ppr.id_compte AS id_pro,
+    'Professionnel Privé' AS type_pro,
+    ppr.nom_pro AS nom_pro,
+    ppr.email AS email_pro,
+    o.id_offre AS id_offre,
+    o.titre AS titre_offre,
+    o.description AS description_offre
+FROM 
+    _pro_prive ppr
+JOIN 
+    _offre o ON ppr.id_compte = o.id_pro
+
+UNION ALL
+
+SELECT 
+    ppu.id_compte AS id_pro,
+    'Professionnel Public' AS type_pro,
+    ppu.nom_pro AS nom_pro,
+    ppu.email AS email_pro,
+    o.id_offre AS id_offre,
+    o.titre AS titre_offre,
+    o.description AS description_offre
+FROM 
+    _pro_public ppu
+JOIN 
+    _offre o ON ppu.id_compte = o.id_pro;
+
 -- -------------------------------------------------------------------- Filtres multicritères Offre 
 -- -------------------------------------------------------------------- Mise à la une Offre
 -- -------------------------------------------------------------------- Mise en relief Offre

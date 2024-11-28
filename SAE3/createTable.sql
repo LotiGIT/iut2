@@ -128,9 +128,8 @@ CREATE TABLE _tag ( -- Antoine
 CREATE TABLE _option (
     nom VARCHAR(50) PRIMARY KEY NOT NULL, -- A la une ou En relief
     prix_ht FLOAT NOT NULL,
-    tva FLOAT NOT NULL,
-    prix_ttc FLOAT,
-    prix_unitaire FLOAT NOT NULL
+    prix_ttc FLOAT, -- déduit par prix_unitaire*nb_semaines
+    prix_unitaire FLOAT
 
 );
 
@@ -145,7 +144,9 @@ CREATE TABLE _souscription (
 -- Antoine
 create table _type_offre (
     id_type_offre SERIAL PRIMARY KEY NOT NULL,
-    nom VARCHAR(255) NOT NULL
+    nom VARCHAR(255) NOT NULL,
+    prix_ht float,
+    prix_ttc float
 );
 
 -- ARCHITECTURE DES ENFANTS DE _offre :
@@ -196,24 +197,43 @@ CREATE TABLE _tag_offre (
 
 -- Création de la table _avis
 CREATE TABLE _avis (
-  id_avis SERIAL PRIMARY KEY,  
-  date_publication DATE NOT NULL,
-  date_experience DATE NOT NULL,
-  titre VARCHAR(50),
-  commentaire VARCHAR(1024),
-  id_compte INT NOT NULL,
-  id_offre INT NOT NULL,
-  id_avis_reponse INT REFERENCES _avis(id_avis),
-  -- Contrainte pour empêcher plusieurs avis initiaux d'un même membre sur une offre
-  CONSTRAINT unique_avis_per_member UNIQUE (id_compte, id_offre)
+    id_avis SERIAL PRIMARY KEY,  
+    date_publication DATE NOT NULL,
+    date_experience DATE NOT NULL,
+    titre VARCHAR(50),
+    commentaire VARCHAR(1024),
+    note INT CHECK (note BETWEEN 1 AND 5),
+    note_ambiance INT CHECK (note_ambiance BETWEEN 1 AND 5),
+    note_service INT CHECK (note_service BETWEEN 1 AND 5),
+    note_cuisine INT CHECK (note_cuisine BETWEEN 1 AND 5),
+    rapport_qualite_prix INT CHECK (rapport_qualite_prix BETWEEN 1 AND 5),
+    id_compte INT NOT NULL,
+    id_offre INT NOT NULL
+    -- Contrainte pour empêcher plusieurs avis initiaux d'un même membre sur une offre
+);
+
+
+CREATE TABLE _reponses(
+    id_reponse SERIAL PRIMARY KEY,
+    reponse VARCHAR(255),
+    id_avis INT UNIQUE, -- Clé étrangère vers _avis
+    CONSTRAINT fk_reponse_avis FOREIGN KEY (id_avis) REFERENCES _avis (id_avis) ON DELETE CASCADE
 );
 
 -- ------------------------------------------------------------------------------------------------------- Facture
 -- Maxime
 CREATE TABLE _facture (
-    id_facture SERIAL PRIMARY KEY,
-    jour_en_ligne DATE NOT NULL,
-    id_offre SERIAL REFERENCES _offre (id_offre)
+    numero VARCHAR(255),
+    designation VARCHAR(255) NOT NULL,
+    date_emission DATE NOT NULL,
+    date_prestation DATE NOT NULL,
+    date_echeance DATE NOT NULL,
+    date_lancement DATE NOT NULL,
+    nbjours_abonnement INTEGER NOT NULL,
+    quantite INTEGER NOT NULL,
+    prix_unitaire_HT FLOAT NOT NULL,
+    prix_unitaire_TTC FLOAT NOT NULL,
+    PRIMARY KEY (numero, designation) -- Clé primaire composite
 );
 -- ------------------------------------------------------------------------------------------------------- Logs 
 CREATE TABLE _log_changement_status ( -- Maxime
@@ -221,12 +241,11 @@ CREATE TABLE _log_changement_status ( -- Maxime
     id_offre SERIAL REFERENCES _offre (id_offre),
     date_changement DATE NOT NULL
 );
-
 -- ------------------------------------------------------------------------------------------------------- Restaurants
 -- Type de repas 'petit dej' 'diner' etc...
 create table _type_repas ( -- Baptiste
     id_type_repas SERIAL PRIMARY KEY,
-    nom_type_repas VARCHAR(255) NOT NULL UNIQUE
+    nom VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- Table _restauration (hérite _offre)
@@ -286,8 +305,6 @@ ADD CONSTRAINT fk_activite_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse 
 ALTER TABLE _activite
 ADD CONSTRAINT fk_activite_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
 
-
-
 -- ------------------------------------------------------------------------------------------------------- TAG Activité
 create table _tag_activite ( -- Maxime
     id_offre SERIAL REFERENCES _activite (id_offre),
@@ -298,7 +315,7 @@ create table _tag_activite ( -- Maxime
 -- Table _spectacle (hérite de _offre)
 CREATE TABLE _spectacle ( -- (MVC) Léo
     capacite_spectacle INTEGER,
-    duree_spectacle TIME
+    duree TIME
 ) INHERITS (_offre);
 
 -- Rajout des contraintes perdues pour _spectacle à cause de l'héritage
@@ -311,8 +328,6 @@ ADD CONSTRAINT fk_spectacle_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse
 ALTER TABLE _spectacle
 ADD CONSTRAINT fk_spectacle_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
 
-
-
 -- ------------------------------------------------------------------------------------------------------- TAG Spectacles
 create table _tag_spectacle ( -- Maxime
     id_offre SERIAL REFERENCES _spectacle (id_offre),
@@ -324,7 +339,7 @@ create table _tag_spectacle ( -- Maxime
 -- (MVC) Léo
 CREATE TABLE _visite (
     duree_visite TIME,
-    guide_visite BOOLEAN
+    avec_guide BOOLEAN
 ) INHERITS (_offre);
 
 -- Rajout des contraintes perdues pour _visite à cause de l'héritage
@@ -336,12 +351,10 @@ ADD CONSTRAINT fk_visite_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (i
 ALTER TABLE _visite
 ADD CONSTRAINT fk_visite_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre);
 
-
-
 -- langues parlées durant la visite
 CREATE TABLE _langue ( -- Antoine
     id_langue SERIAL PRIMARY KEY,
-    nom_langue VARCHAR(255)
+    nom VARCHAR(255)
 );
 
 -- Table de lien pour les langues parlées durant les visites
@@ -349,7 +362,6 @@ CREATE TABLE _visite_langue ( -- Antoine
     id_offre SERIAL REFERENCES _visite (id_offre),
     id_langue SERIAL REFERENCES _langue (id_langue)
 );
-
 -- ------------------------------------------------------------------------------------------------------- TAG Visites
 create table _tag_visite ( -- Maxime
     id_offre SERIAL REFERENCES _visite (id_offre),
@@ -383,6 +395,7 @@ create table _tag_parc_attraction ( -- Maxime
 -- Table Horaire
 CREATE TABLE _horaire ( -- Antoine
     id_horaire SERIAL PRIMARY KEY,
+    jour VARCHAR(8) NOT NULL,
     ouverture TIME NOT NULL,
     fermeture TIME NOT NULL,
     pause_debut TIME,
@@ -393,34 +406,19 @@ CREATE TABLE _horaire ( -- Antoine
 -- Table TARIF public
 CREATE TABLE _tarif_public ( -- Baptiste
     id_tarif SERIAL PRIMARY KEY,
-    titre_tarif VARCHAR(255) NOT NULL,
+    titre VARCHAR(255) NOT NULL,
     age_min INTEGER,
     age_max INTEGER,
     prix INTEGER,
     id_offre INTEGER NOT NULL
 );
-
--- ------------------------------------------------------------------------------------------------------- Tarif Facture
-
-
-
 -- ------------------------------------------------------------------------------------------------------- Prestations
 CREATE TABLE _prestation (
     id_prestation SERIAL PRIMARY KEY,
     nom VARCHAR(50) NOT NULL,
     inclus BOOLEAN,
-    id_pro INTEGER NOT NULL REFERENCES _professionnel(id_compte) ON DELETE CASCADE -- Propriétaire
+    id_offre INTEGER NOT NULL REFERENCES _activite(id_offre) ON DELETE CASCADE -- Propriétaire
 );
-
-
--- ------------------------------------------------------------------------------------------------------- Liaison prestation et activité     **** Prestation à revoir, ça ne marche pas ****
-CREATE TABLE _activite_prestation (
-    id_activite INTEGER NOT NULL REFERENCES _activite(id_offre) ON DELETE CASCADE,
-    id_prestation INTEGER NOT NULL REFERENCES _prestation(id_prestation) ON DELETE CASCADE,
-    PRIMARY KEY (id_activite, id_prestation)
-);
-
-
 -- ------------------------------------------------------------------------------------------------------- Images
 -- Table T_IMAGE_IMG
 CREATE TABLE T_Image_Img (
