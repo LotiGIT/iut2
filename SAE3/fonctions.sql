@@ -5,6 +5,41 @@ set schema 'sae_db';
                   Fonctions            
 */
 
+
+-- fonction qui permet uniquement à un membre de créer un avis.
+CREATE OR REPLACE FUNCTION check_avis()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Vérifie que l'id_compte appartient à un membre
+    IF NOT EXISTS (
+        SELECT 1
+        FROM _membre
+        WHERE id_compte = NEW.id_compte
+    ) THEN
+        RAISE EXCEPTION 'Seul un membre peut écrire un avis';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- fonction qui permet uniquement au professionnel détenteur de l'offre de répondre à un avis
+CREATE OR REPLACE FUNCTION check_reponse()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Vérifie que le professionnel qui répond est bien le propriétaire de l'offre liée à l'avis
+    IF NOT EXISTS (
+        SELECT 1
+        FROM _offre o
+        JOIN _avis a ON o.id_offre = a.id_offre
+        WHERE a.id_avis = NEW.id_avis AND o.id_pro = NEW.id_compte
+    ) THEN
+        RAISE EXCEPTION 'Seul le professionnel propriétaire de l''offre peut répondre à cet avis';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
 -- la prestation est créée par un pro et insérée dans la bdd, si un pro différent créé la mêm eprestation alors la prestation est réutilisée et non créée.
 
 CREATE OR REPLACE FUNCTION creer_prestation(
@@ -115,52 +150,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Vérification des règles métier (avis/réponses)  --- la fonction est à revoir à cause du nouveau diagramme
-CREATE OR REPLACE FUNCTION check_contraintes_avis()
-RETURNS TRIGGER AS $$
-DECLARE
-    auteur_offre INT;
-    avis_reponse_offre INT;
-    is_response BOOLEAN := (NEW.id_avis_reponse IS NOT NULL);
-BEGIN
-    -- Récupérer l'auteur de l'offre
-    SELECT id_pro INTO auteur_offre
-    FROM _offre
-    WHERE id_offre = NEW.id_offre;
-
-    -- Si l'avis est une réponse
-    IF is_response THEN
-        -- Vérifier que l'avis parent existe et récupérer son id_offre
-        SELECT id_offre INTO avis_reponse_offre
-        FROM _avis
-        WHERE id_avis = NEW.id_avis_reponse;
-
-        -- Vérifier que l'avis parent appartient à la même offre
-        IF avis_reponse_offre IS DISTINCT FROM NEW.id_offre THEN
-            RAISE EXCEPTION 'L''avis auquel vous répondez n''appartient pas à la même offre.';
-        END IF;
-
-        -- Vérifier que l'avis parent n'est pas une réponse lui-même
-        IF EXISTS (SELECT 1 FROM _avis WHERE id_avis = NEW.id_avis_reponse AND id_avis_reponse IS NOT NULL) THEN
-            RAISE EXCEPTION 'Vous ne pouvez pas répondre à une réponse.';
-        END IF;
-
-        -- Vérifier que l'auteur est un professionnel (auteur de l'offre)
-        IF NEW.id_compte != auteur_offre THEN
-            RAISE EXCEPTION 'Seul le professionnel peut répondre à un avis.';
-        END IF;
-    ELSE
-        -- Sinon, c'est un avis initial
-        -- Vérifier que l'auteur de l'avis n'est pas l'auteur de l'offre
-        IF NEW.id_compte = auteur_offre THEN
-            RAISE EXCEPTION 'Le professionnel ne peut pas laisser un avis sur sa propre offre.';
-        END IF;
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 -- Fonction pour vérifier une clé étrangère manuellement, car sinon pb avec raisons de double héritage
 CREATE OR REPLACE FUNCTION fk_vers_professionnel() RETURNS TRIGGER AS $$
 BEGIN
@@ -219,12 +208,6 @@ $$ LANGUAGE plpgsql;
                   Triggers           
 */
 
--- Trigger pour valider les règles métier
-CREATE TRIGGER tg_check_contraintes_avis
-BEFORE INSERT OR UPDATE ON _avis
-FOR EACH ROW
-EXECUTE FUNCTION check_contraintes_avis();
-
 -- Trigger pour valider les clés étrangères
 CREATE TRIGGER tg_fk_avis
 BEFORE INSERT ON _avis
@@ -274,20 +257,34 @@ BEFORE UPDATE ON _offre
 FOR EACH ROW
 EXECUTE FUNCTION update_offer_timestamp();
 
--- trigers de vérification d'un unique compte professionnel privé puisse rentrer des valeurs (pas très explicit ça)
+-- trigger de vérification d'un unique compte professionnel privé puisse rentrer des valeurs (pas très explicit ça)
 CREATE TRIGGER tg_unique_vals_compte
 BEFORE INSERT ON _pro_prive
 FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte();
 
--- trigers de vérification d'un unique compte professionnel publique puisse rentrer des valeurs (pas très explicit ça)
+-- trigger de vérification d'un unique compte professionnel publique puisse rentrer des valeurs (pas très explicit ça)
 CREATE TRIGGER tg_unique_vals_compte
 BEFORE INSERT ON _pro_public
 FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte();
 
--- trigers de vérification d'un unique compte membre puisse rentrer des valeurs (pas très explicit ça)
+-- trigger de vérification d'un unique compte membre puisse rentrer des valeurs (pas très explicit ça)
 CREATE TRIGGER tg_unique_vals_compte
 BEFORE INSERT ON _membre
 FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte();
+
+-- trigger pour vérifier qu'un avis ne peut être écrit que par un membre
+CREATE TRIGGER trigger_check_avis
+BEFORE INSERT ON _avis
+FOR EACH ROW
+EXECUTE FUNCTION check_avis();
+
+-- trigger pour vérifier qu'une réponse ne peut être écrite que par un pro détenteur de l'offre
+CREATE TRIGGER trigger_check_reponse
+BEFORE INSERT ON _reponses
+FOR EACH ROW
+EXECUTE FUNCTION check_reponse();
+
+

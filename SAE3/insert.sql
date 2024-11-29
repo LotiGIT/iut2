@@ -13,6 +13,13 @@
 SET SCHEMA 'sae_db';
 
 
+INSERT INTO _option (nom, prix_ht, prix_ttc, prix_unitaire)
+VALUES 
+('A la une', 16.68, 20.00, 16.68),
+('En relief', 8.34, 10.00, 8.34);
+
+
+
 -- Insertion de plusieurs lignes pour chaque facture
 INSERT INTO _facture (numero, designation, date_emission, date_prestation, date_echeance, date_lancement, nbjours_abonnement, quantite, prix_unitaire_HT, prix_unitaire_TTC)
 VALUES 
@@ -23,7 +30,6 @@ VALUES
 ('FAC-2024-002', 'Option "À la une"', '2024-11-01', '2024-11-01', '2024-12-01', '2024-11-01', 0, 4, 16.68, 20.00),
 ('FAC-2024-002', 'Option "En relief"', '2024-11-01', '2024-11-01', '2024-12-01', '2024-11-01', 0, 3, 8.34, 10.00);
 
-INSERT INTO _option (nom, prix_ttc, prix_ht
 
 INSERT INTO
     _adresse (
@@ -494,3 +500,39 @@ VALUES
     (7, 2),
     (8, 1),
     (8, 3);
+    
+-- insertion avis
+INSERT INTO _avis (date_publication, date_experience, titre, commentaire, note, note_ambiance, note_service, note_cuisine, rapport_qualite_prix, id_membre, id_offre)
+VALUES ('2024-11-01', '2024-10-20', 'Super expérience', 'Très bon restaurant', 5, 5, 4, 5, 4, 1, 1); 
+
+-- insertion réponse
+INSERT INTO _reponses (reponse, id_avis, id_pro)
+VALUES ('Merci pour votre avis !', 1, 2); -- id_compte = professionnel propriétaire de l'offre
+
+-- Insertion pour la relation ternaire
+
+INSERT INTO _offre_souscription_option (id_offre, id_souscription, nom_option, date_association)
+VALUES
+-- Offre 1 (Le Gourmet) avec Souscription 1 et Option "A la une"
+(1, 1, 'A la une', '2024-01-15'),
+
+-- Offre 1 (Le Gourmet) avec Souscription 2 et Option "En relief"
+(1, 2, 'En relief', '2024-02-20'),
+
+-- Offre 2 (Le Bateau Ivre) avec Souscription 1 et Option "A la une"
+(2, 1, 'A la une', '2024-03-05'),
+
+-- Offre 2 (Le Bateau Ivre) avec Souscription 2 et Option "En relief"
+(2, 2, 'En relief', '2024-04-10'),
+
+-- Offre 3 (Randonnée en forêt) avec Souscription 1 et Option "A la une"
+(3, 1, 'A la une', '2024-01-12'),
+
+-- Offre 4 (Kayak sur la rivière) avec Souscription 2 et Option "En relief"
+(4, 2, 'En relief', '2024-02-18'),
+
+-- Offre 5 (Spectacle de magie) avec Souscription 1 et Option "A la une"
+(5, 1, 'A la une', '2024-03-12'),
+
+-- Offre 6 (Concert acoustique en plein air) avec Souscription 2 et Option "En relief"
+(6, 2, 'En relief', '2024-04-22');

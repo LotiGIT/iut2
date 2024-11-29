@@ -116,7 +116,6 @@ CREATE TABLE _RIB ( -- Léo
     cle_rib VARCHAR(255) NOT NULL,
     id_compte SERIAL REFERENCES _pro_prive (id_compte) UNIQUE
 );
-
 -- ------------------------------------------------------------------------------------------------------- TAG
 -- Table TAG
 
@@ -132,7 +131,6 @@ CREATE TABLE _option (
     prix_unitaire FLOAT
 
 );
-
 -- ------------------------------------------------------------------------------------------------------- Souscription
 CREATE TABLE _souscription (
     id_souscription INTEGER PRIMARY KEY,
@@ -201,22 +199,22 @@ CREATE TABLE _avis (
     date_publication DATE NOT NULL,
     date_experience DATE NOT NULL,
     titre VARCHAR(50),
-    commentaire VARCHAR(1024),
-    note INT CHECK (note BETWEEN 1 AND 5),
-    note_ambiance INT CHECK (note_ambiance BETWEEN 1 AND 5),
-    note_service INT CHECK (note_service BETWEEN 1 AND 5),
-    note_cuisine INT CHECK (note_cuisine BETWEEN 1 AND 5),
-    rapport_qualite_prix INT CHECK (rapport_qualite_prix BETWEEN 1 AND 5),
-    id_compte INT NOT NULL,
-    id_offre INT NOT NULL
-    -- Contrainte pour empêcher plusieurs avis initiaux d'un même membre sur une offre
+    commentaire VARCHAR(1024) NOT NULL,
+    note INT CHECK (note BETWEEN 1 AND 5) NOT NULL,
+    note_ambiance INT CHECK (note_ambiance BETWEEN 1 AND 5) NOT NULL,
+    note_service INT CHECK (note_service BETWEEN 1 AND 5) NOT NULL,
+    note_cuisine INT CHECK (note_cuisine BETWEEN 1 AND 5) NOT NULL,
+    rapport_qualite_prix INT CHECK (rapport_qualite_prix BETWEEN 1 AND 5) NOT NULL,
+    id_membre INT NOT NULL REFERENCES _membre(id_compte),
+    id_offre INT NOT NULL REFERENCES _offre(id_offre)
 );
 
 
 CREATE TABLE _reponses(
     id_reponse SERIAL PRIMARY KEY,
-    reponse VARCHAR(255),
+    reponse VARCHAR(255) NOT NULL,
     id_avis INT UNIQUE, -- Clé étrangère vers _avis
+    id_pro INT REFERENCES _professionnel(id_compte),
     CONSTRAINT fk_reponse_avis FOREIGN KEY (id_avis) REFERENCES _avis (id_avis) ON DELETE CASCADE
 );
 

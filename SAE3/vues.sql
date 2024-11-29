@@ -3,27 +3,27 @@ set schema 'sae_db';
 
 
 -- vue pour da la facture sans les montants totaux 
-
-CREATE OR REPLACE VIEW vue_facture AS
+CREATE OR REPLACE VIEW vue_facture_quantite AS
 SELECT 
     f.numero AS "Numéro de Facture",
+    f.designation AS "Service",
     f.date_emission AS "Date d'Émission",
     f.date_prestation AS "Date de Prestation",
     f.date_echeance AS "Date d'Échéance",
-    f.designation AS "Service",
-    CASE 
-        WHEN f.quantite IS NOT NULL AND THEN CONCAT(f.quantite, ' semaines')
-        WHEN t.nom IS NOT NULL THEN CONCAT(f.quantite, ' jours')
-        ELSE 'N/A'
+    f.date_lancement AS "Date de Lancement",
+    CASE
+        -- Recherche des mots clés dans la désignation pour décider si c'est une option ou un abonnement
+        WHEN LOWER(f.designation) LIKE '%abonnement%' THEN CONCAT(f.nbjours_abonnement, ' jours')
+        WHEN LOWER(f.designation) LIKE '%option%' OR LOWER(f.designation) IN ('a la une', 'en relief') THEN CONCAT(f.quantite, ' semaines')
+        ELSE 'Quantité inconnue'
     END AS "Quantité",
     f.prix_unitaire_HT AS "Prix Unitaire HT (€)",
     f.prix_unitaire_TTC AS "Prix Unitaire TTC (€)",
-    -- Calcul des montants totaux dynamiquement
     f.quantite * f.prix_unitaire_HT AS "Montant HT (€)",
     f.quantite * f.prix_unitaire_TTC AS "Montant TTC (€)"
-FROM _facture f
-LEFT JOIN _option o ON f.designation = o.nom
-LEFT JOIN _type_offre t ON f.designation = t.nom;
+FROM _facture f;
+
+
 
 -- vue de la facture avec les montants totaux 
 CREATE OR REPLACE VIEW vue_facture_totaux AS
