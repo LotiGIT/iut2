@@ -14,7 +14,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1
         FROM _membre
-        WHERE id_compte = NEW.id_compte
+        WHERE id_compte  = NEW.id_membre
     ) THEN
         RAISE EXCEPTION 'Seul un membre peut écrire un avis';
     END IF;
@@ -29,9 +29,9 @@ BEGIN
     -- Vérifie que le professionnel qui répond est bien le propriétaire de l'offre liée à l'avis
     IF NOT EXISTS (
         SELECT 1
-        FROM _offre o
-        JOIN _avis a ON o.id_offre = a.id_offre
-        WHERE a.id_avis = NEW.id_avis AND o.id_pro = NEW.id_compte
+        FROM sae_db._offre o
+        JOIN sae_db._avis a ON o.id_offre = a.id_offre
+        WHERE a.id_avis = NEW.id_avis AND o.id_pro = NEW.id_pro
     ) THEN
         RAISE EXCEPTION 'Seul le professionnel propriétaire de l''offre peut répondre à cet avis';
     END IF;
@@ -40,47 +40,45 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- la prestation est créée par un pro et insérée dans la bdd, si un pro différent créé la mêm eprestation alors la prestation est réutilisée et non créée.
+-- la prestation est créée par un pro et insérée dans la bdd, si un pro différent créé la même prestation alors la prestation est réutilisée et non créée.
 
 CREATE OR REPLACE FUNCTION creer_prestation(
-    p_nom VARCHAR,
-    p_inclus BOOLEAN,
-    p_id_pro INTEGER,
-    p_id_activite INTEGER
+    p_nom VARCHAR(50),        -- Nom de la prestation
+    p_inclus BOOLEAN,         -- Inclus ou non
+    p_id_offre INTEGER        -- ID de l'offre liée à la prestation
 )
 RETURNS INTEGER AS $$
 DECLARE
     prestation_existante_id INTEGER;
     new_prestation_id INTEGER;
 BEGIN
-    -- Vérifier si la prestation existe déjà dans la base (même nom)
+    -- Vérifier si la prestation existe déjà dans la base de données (basée sur le nom)
     SELECT id_prestation
     INTO prestation_existante_id
     FROM _prestation
     WHERE nom = p_nom;
 
-    -- Si la prestation existe, on réutilise son ID
+    -- Si la prestation existe déjà, on réutilise son ID
     IF prestation_existante_id IS NOT NULL THEN
-        -- Associer cette prestation à l'activité donnée
-        INSERT INTO _activite_prestation (id_activite, id_prestation)
-        VALUES (p_id_activite, prestation_existante_id)
-        ON CONFLICT DO NOTHING;
+        -- On ne fait rien de plus, car la prestation existe déjà
+        RETURN prestation_existante_id;  -- Retourne l'ID de la prestation existante
+    ELSE
+        -- Sinon, on crée une nouvelle prestation
+        INSERT INTO _prestation (nom, inclus, id_offre)
+        VALUES (p_nom, p_inclus, p_id_offre)
+        RETURNING id_prestation INTO new_prestation_id;
 
-        RETURN prestation_existante_id; -- Retourner l'ID de la prestation existante
+        -- Retourner l'ID de la nouvelle prestation
+        RETURN new_prestation_id;
     END IF;
-
-    -- Sinon, insérer une nouvelle prestation
-    INSERT INTO _prestation (nom, inclus, id_pro)
-    VALUES (p_nom, p_inclus, p_id_pro)
-    RETURNING id_prestation INTO new_prestation_id;
-
-    -- Associer la nouvelle prestation à l'activité donnée
-    INSERT INTO _activite_prestation (id_activite, id_prestation)
-    VALUES (p_id_activite, new_prestation_id);
-
-    RETURN new_prestation_id; -- Retourner l'ID de la nouvelle prestation
 END;
 $$ LANGUAGE plpgsql;
+
+-- Créer une prestation si elle n'existe pas déjà
+SELECT creer_prestation('Prestation ABC', TRUE, 3);
+
+-- Réutiliser une prestation existante si elle a le même nom
+SELECT creer_prestation('zizi', TRUE, 4);
 
 
 
@@ -123,39 +121,12 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
--- Vérification des clés étrangères avec les comptes et offres
-CREATE OR REPLACE FUNCTION fk_avis()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Vérification de l'existence de l'utilisateur (id_compte)
-    IF NOT EXISTS (SELECT 1 FROM _pro_prive WHERE id_compte = NEW.id_compte)
-    AND NOT EXISTS (SELECT 1 FROM _pro_public WHERE id_compte = NEW.id_compte)
-    AND NOT EXISTS (SELECT 1 FROM _membre WHERE id_compte = NEW.id_compte)
-    THEN
-        RAISE EXCEPTION 'L''id_compte % ne correspond à aucun utilisateur valide.', NEW.id_compte;
-    END IF;
-    
-    -- Vérification de l'existence de l'offre (id_offre)
-    IF NOT EXISTS (SELECT 1 FROM _restauration WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM _activite WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM _parc_attraction WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM _visite WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM _spectacle WHERE id_offre = NEW.id_offre)
-    THEN
-        RAISE EXCEPTION 'L''id_offre % ne correspond à aucune offre valide.', NEW.id_offre;
-    END IF;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 -- Fonction pour vérifier une clé étrangère manuellement, car sinon pb avec raisons de double héritage
 CREATE OR REPLACE FUNCTION fk_vers_professionnel() RETURNS TRIGGER AS $$
 BEGIN
     -- Alerter quand la clé étrangère n'est pas respecté
-    IF NOT EXISTS (SELECT 1 FROM _pro_prive WHERE id_compte = NEW.id_pro)
-    AND NOT EXISTS (SELECT 1 FROM _pro_public WHERE id_compte = NEW.id_pro) THEN
+    IF NOT EXISTS (SELECT 1 FROM sae_db._pro_prive WHERE id_compte = NEW.id_pro)
+    AND NOT EXISTS (SELECT 1 FROM sae_db._pro_public WHERE id_compte = NEW.id_pro) THEN
         RAISE EXCEPTION 'Violation de la foreignn key: id_pro n existe pas dans _pro_prive ou _pro_public';
     END IF;
     RETURN NEW;
@@ -208,32 +179,27 @@ $$ LANGUAGE plpgsql;
                   Triggers           
 */
 
--- Trigger pour valider les clés étrangères
-CREATE TRIGGER tg_fk_avis
-BEFORE INSERT ON _avis
-FOR EACH ROW
-EXECUTE FUNCTION fk_avis();
 
 -- trigger pour vérifier les id de la table activite
-CREATE TRIGGER fk_restauration_professionnel
+CREATE TRIGGER fk_activite_professionnel
 BEFORE INSERT ON _activite
 FOR EACH ROW
 EXECUTE FUNCTION fk_vers_professionnel();
 
 -- trigger pour vérifier les id de la table spectacle
-CREATE TRIGGER fk_restauration_professionnel
+CREATE TRIGGER fk_spectacle_professionnel
 BEFORE INSERT ON _spectacle
 FOR EACH ROW
 EXECUTE FUNCTION fk_vers_professionnel();
 
 -- trigger pour vérifier les id de la table visite
-CREATE TRIGGER fk_restauration_professionnel
+CREATE TRIGGER fk_visite_professionnel
 BEFORE INSERT ON _visite
 FOR EACH ROW
 EXECUTE FUNCTION fk_vers_professionnel();
 
 -- trigger pour vérifier les id de la table parc d'attraction 
-CREATE TRIGGER fk_restauration_professionnel
+CREATE TRIGGER fk_parc_professionnel
 BEFORE INSERT ON _parc_attraction
 FOR EACH ROW
 EXECUTE FUNCTION fk_vers_professionnel();
@@ -258,19 +224,19 @@ FOR EACH ROW
 EXECUTE FUNCTION update_offer_timestamp();
 
 -- trigger de vérification d'un unique compte professionnel privé puisse rentrer des valeurs (pas très explicit ça)
-CREATE TRIGGER tg_unique_vals_compte
+CREATE TRIGGER tg_unique_vals_compte_prive
 BEFORE INSERT ON _pro_prive
 FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte();
 
 -- trigger de vérification d'un unique compte professionnel publique puisse rentrer des valeurs (pas très explicit ça)
-CREATE TRIGGER tg_unique_vals_compte
+CREATE TRIGGER tg_unique_vals_compte_pro
 BEFORE INSERT ON _pro_public
 FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte();
 
 -- trigger de vérification d'un unique compte membre puisse rentrer des valeurs (pas très explicit ça)
-CREATE TRIGGER tg_unique_vals_compte
+CREATE TRIGGER tg_unique_vals_compte_membre
 BEFORE INSERT ON _membre
 FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte();
