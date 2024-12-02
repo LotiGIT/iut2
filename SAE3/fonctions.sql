@@ -74,12 +74,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Créer une prestation si elle n'existe pas déjà
-SELECT creer_prestation('Prestation ABC', TRUE, 3);
-
--- Réutiliser une prestation existante si elle a le même nom
-SELECT creer_prestation('zizi', TRUE, 4);
-
 
 
 -- vérifie que l'email est valide

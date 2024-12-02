@@ -131,12 +131,7 @@ CREATE TABLE _option (
     prix_unitaire FLOAT
 
 );
--- ------------------------------------------------------------------------------------------------------- Souscription
-CREATE TABLE _souscription (
-    id_souscription INTEGER PRIMARY KEY,
-    nb_semaines INTEGER NOT NULL,
-    date_lancement DATE NOT NULL
-);
+
 -- ------------------------------------------------------------------------------------------------------- Offre
 -- Table _type_offre (gratuite OU standard OU premium)
 -- Antoine
@@ -170,6 +165,14 @@ CREATE TABLE _offre (
     id_pro INTEGER REFERENCES _professionnel (id_compte),
     id_adresse SERIAL REFERENCES _adresse (id_adresse),
     option VARCHAR(10)
+);
+
+-- ------------------------------------------------------------------------------------------------------- Souscription
+CREATE TABLE _souscription (
+    id_souscription INTEGER PRIMARY KEY,
+    nb_semaines INTEGER NOT NULL,
+    date_lancement DATE NOT NULL,
+    id_offre INTEGER REFERENCES sae_db._offre(id_offre),
 );
 -- ------------------------------------------------------------------------------------------------------- Relation ternaire entre Offre, Souscription et Option
 -- Création de la table de relation ternaire entre _offre, _souscription et _option

@@ -1,7 +1,5 @@
 set schema 'sae_db';
 
-
-
 -- vue pour da la facture sans les montants totaux 
 CREATE OR REPLACE VIEW vue_facture_quantite AS
 SELECT 

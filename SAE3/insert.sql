@@ -501,13 +501,11 @@ VALUES
     (8, 1),
     (8, 3);
     
--- insertion avis
-INSERT INTO _avis (date_publication, date_experience, titre, commentaire, note, note_ambiance, note_service, note_cuisine, rapport_qualite_prix, id_membre, id_offre)
-VALUES ('2024-11-01', '2024-10-20', 'Super expérience', 'Très bon restaurant', 5, 5, 4, 5, 4, 1, 1); 
+
 
 -- insertion réponse
-INSERT INTO _reponses (reponse, id_avis, id_pro)
-VALUES ('Merci pour votre avis !', 1, 2); -- id_compte = professionnel propriétaire de l'offre
+ INSERT INTO _reponses (reponse, id_avis, id_pro)
+ VALUES ('Merci pour votre avis !', 1, 2); -- id_compte = professionnel propriétaire de l'offre
 
 -- Insertion pour la relation ternaire
 
@@ -536,3 +534,8 @@ VALUES
 
 -- Offre 6 (Concert acoustique en plein air) avec Souscription 2 et Option "En relief"
 (6, 2, 'En relief', '2024-04-22');
+
+
+-- insertion avis
+INSERT INTO _avis (date_publication, date_experience, titre, commentaire, note, note_ambiance, note_service, note_cuisine, rapport_qualite_prix, id_membre, id_offre)
+VALUES ('2024-11-01', '2024-10-20', 'Super expérience', 'Très bon restaurant', 5, 5, 4, 5, 4, 1, 1); 
