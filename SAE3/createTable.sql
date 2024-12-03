@@ -172,7 +172,7 @@ CREATE TABLE _souscription (
     id_souscription INTEGER PRIMARY KEY,
     nb_semaines INTEGER NOT NULL,
     date_lancement DATE NOT NULL,
-    id_offre INTEGER REFERENCES sae_db._offre(id_offre),
+    id_offre INTEGER REFERENCES sae_db._offre(id_offre)
 );
 -- ------------------------------------------------------------------------------------------------------- Relation ternaire entre Offre, Souscription et Option
 -- Création de la table de relation ternaire entre _offre, _souscription et _option

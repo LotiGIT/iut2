@@ -1,5 +1,40 @@
 set schema 'sae_db';
 
+
+-- vue facture globale 
+CREATE OR REPLACE VIEW vue_facture AS
+SELECT 
+    f.numero AS "Numéro de Facture",
+    f.designation AS "Désignation",
+    f.date_emission AS "Date d'Émission",
+    f.date_prestation AS "Date de Prestation",
+    f.date_echeance AS "Date d'Échéance",
+    f.date_lancement AS "Date de Lancement",
+    f.prix_unitaire_HT AS "Prix Unitaire HT",
+    f.prix_unitaire_TTC AS "Prix Unitaire TTC",
+    COALESCE(
+        (SELECT COUNT(*)
+         FROM calculer_jours_facturables(o.id_offre)
+         WHERE jour_facturable BETWEEN f.date_lancement AND f.date_prestation
+        ), 0
+    ) AS "Jours Facturés",
+    COALESCE(
+        (SELECT COUNT(*) 
+         FROM calculer_jours_facturables(o.id_offre)
+         WHERE jour_facturable BETWEEN f.date_lancement AND f.date_prestation
+        ) * f.prix_unitaire_HT, 0
+    ) AS "Total HT",
+    COALESCE(
+        (SELECT COUNT(*) 
+         FROM calculer_jours_facturables(o.id_offre)
+         WHERE jour_facturable BETWEEN f.date_lancement AND f.date_prestation
+        ) * f.prix_unitaire_TTC, 0
+    ) AS "Total TTC"
+FROM 
+    _facture f
+JOIN 
+    _offre o ON f.designation = o.titre; -- Correspondance entre les factures et les offres
+
 -- vue pour da la facture sans les montants totaux 
 CREATE OR REPLACE VIEW vue_facture_quantite AS
 SELECT 

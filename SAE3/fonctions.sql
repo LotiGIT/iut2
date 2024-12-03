@@ -5,6 +5,37 @@ set schema 'sae_db';
                   Fonctions            
 */
 
+-- calcul des jours facturables 
+CREATE OR REPLACE FUNCTION calculer_jours_facturables(id_offre_input INT)
+RETURNS TABLE (jour_facturable DATE) AS $$
+BEGIN
+    RETURN QUERY
+    WITH changements AS (
+        SELECT 
+            id,
+            id_offre,
+            date_changement::DATE AS jour,
+            MOD(id, 2) AS statut, -- Pair = en ligne (0), Impair = hors ligne (1)
+            LEAD(date_changement::DATE, 1, CURRENT_DATE + 1) OVER (PARTITION BY id_offre ORDER BY date_changement) AS jour_suivant
+        FROM _log_changement_status
+        WHERE id_offre = id_offre_input
+    ),
+    jours_facturables AS (
+        SELECT 
+            generate_series(
+                jour, 
+                jour_suivant - 1, 
+                '1 day'::INTERVAL
+            )::DATE AS jour_facturable
+        FROM changements
+        WHERE statut = 0 -- Facture uniquement les jours où l'offre est en ligne
+    )
+    SELECT DISTINCT jour_facturable -- Éviter les doublons
+    FROM jours_facturables
+    WHERE jour_facturable <= CURRENT_DATE; -- Exclure les jours futurs
+END;
+$$ LANGUAGE plpgsql;
+
 
 -- fonction qui permet uniquement à un membre de créer un avis.
 CREATE OR REPLACE FUNCTION check_avis()
