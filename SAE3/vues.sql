@@ -1,7 +1,17 @@
 set schema 'sae_db';
 
 
-
+CREATE OR REPLACE VIEW vue_details_options AS
+SELECT 
+  opt.id_offre
+  s.id_souscription
+  o.nom_option
+FROM 
+  _offre_souscription_option oso
+JOIN 
+  _option opt on oso.id_offre = opt.id_offre
+  _souscription s on oso.id_souscription = s.id_souscription
+  _offre o on 
 -- vue pour afficher la facturation des options
 
 CREATE OR REPLACE VIEW vue_facture_options AS
@@ -12,16 +22,19 @@ SELECT
     f.date_prestation AS "Date de Prestation",
     f.date_echeance AS "Date d'Échéance",
     s.nb_semaines AS "Durée Initiale (semaines)",
-    ppr.nom_pro AS
-   
-
-
-
-
-
+    p.nom_pro AS "Nom du professionnel",
+    lcs.date_changement AS "Date changement statut"
     
+FROM 
+  _facture f,
+  _option o,
+  _souscription s,
+  _log_changement_status lcs,
+  _professionnel p
 
-
+JOIN 
+  _option o on ; 
+  
 
 -- vue pour da la facture sans les montants totaux 
 CREATE OR REPLACE VIEW vue_facture_quantite AS
