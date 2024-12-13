@@ -1,28 +1,12 @@
 interface Maximier {
     public int poids();
-    public Maximier inserer(Processus p);
+    public Maximier inserer(int v);
     public void afficheInfixe();
     public boolean estVide();
-    public boolean existe(Processus p);
+    public boolean existe(int v);
     public Maximier supprimer();
-    public Processus suivant();
+    public int obtenirMax();       
 }
 
-void inserer(Processus p)
-{
-    int i, j;
-    assert(N < TAILLE);
-    N++;
-    j = N;
-    while (j > 1)
-    {
-        i = j / 2;
-        if (PRIOR(t[i]) >= PRIOR(p))
-            break;
-        t[j] = t[i];
-        j = i;
-    }
-    t[j] = p;
-}
 
 
