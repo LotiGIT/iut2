@@ -1,0 +1,78 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8x]{inputenc}
+%\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[francais]{babel}
+
+\author{\it Durée : 1h30.}
+\title{Mathématiques pour l'informatique\\
+Arithmétique}
+\date{22 Avril 2011}
+\textheight=26,5cm
+\textwidth=17cm
+\hoffset=-2cm
+\voffset=-1,5cm
+
+\begin{document}
+\maketitle
+
+\noindent{\bf Exercice 1 : }\\
+Déterminer tous les solutions, si elles existent, de l'équation diophantienne :
+$$
+122x+343y=3.
+$$
+\vspace{0.5cm}
+
+\noindent{\bf Exercice 2 : }\\
+Un entier $a \in \mathbb{Z}/n\mathbb{Z}$ est un carré modulo $n$ s'il existe un entier $x \in \mathbb{Z}/n\mathbb{Z}$
+solution de l'équation
+$
+x^2 \equiv a [n].
+$\\
+Dans ce cas on dit que $x$ est une racine carré de $a$ modulo $n$.
+\begin{enumerate}
+\item Trouver les racines carrées de $1$ et $-1$ modulo $n=7$.
+\item Même question avec $n=13$.
+\item Soit $n$ un nombre premier impair.
+	\begin{enumerate}
+	\item Montrer que $a \in \mathbb{Z}/n\mathbb{Z}$ est un carré si, et seulement si,
+$$
+a^{\frac{n-1}{2}} \equiv 1 [n].
+$$
+	\item Pour $n=139$, quels sont parmi les nombres $a=106$ et $a'=97$ ceux qui sont des carrés 
+	\end{enumerate} 
+\item Soit $n$ un nombre premier congru à $3$ modulo $4$ et $a$ un carré modulo $n$.
+	\begin{enumerate}
+	 \item Montrer que les deux racines de $a$ modulo $n$ sont données par $\pm a^{\frac{n+1}{4}}[n].$
+	 \item Calculez, si elles existent, les racines carrés modulo $139$ de $a=106$ et $a'=97$.
+	\end{enumerate}
+\end{enumerate}
+\vspace{0.5cm}
+
+\noindent{\bf Exercice 3 : }\\
+On considère la clef publique RSA $(11,319)$, c'est à dire pour $n=319$ et $e=11$.
+\begin{enumerate}
+ \item Quel est le chiffrement avec cette clé du message $M=100$ ?
+  \item Calculer $d$ la clé privée correspondant à la clef publique $e$.
+  \item Déchiffrer le message $C=133$.
+  \item Le message codé $625$ peut-il résulter d'un codage avec la clef publique ? Même question avec la clé
+privée.
+\end{enumerate}
+\newpage
+
+\noindent{\bf Exercice 4 : }\\
+Un professeur envoie ses notes au secrétariat de l'\'Ecole par mail. La clef publique du professeur est $(3,55)$,
+celle du secrétariat $(3,33)$.
+\begin{enumerate}
+ \item Vérifier que la clef privée du professeur (supposée connue de lui seul) est $27$; et que celle du secrétariat
+est $7$.
+  \item Pour assurer la confidentialité de ses messages, le professeur chiffre les notes avec la clef du secrétariat.
+Quel message chiffré correspond à la note $8$ ?
+  \item Pour assurer l'authenticité des messages contenant les notes, le professeur signe ses messages pour le 
+secrétariat après les avoir chiffrés. Le secrétariat reçoit le message $(XX\vert 9$ où $9$ est la signature.\\
+Quelle est la note correspondante ?
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,257 @@
+\documentclass{beamer}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[french]{babel}%%gestion des césure en français
+\usepackage{amssymb,amsmath,amsthm}
+\newtheorem{proposition}{Proposition}
+\newtheorem{propriete}{Propriété}
+\newtheorem{theoreme}{Théorème}
+\newtheorem{corollaire}{Corollaire}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% style beamer  %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mode<presentation>
+{
+  \usetheme{Madrid}
+  \setbeamercovered{transparent}
+  \setbeamertemplate{navigation symbols}{}
+  \usefonttheme[onlymath]{serif}
+}
+\setbeamertemplate{theorems}[numbered]
+
+\title{Mathématiques pour l'informatique}
+\author{Gwendal Le Bouffant}
+\institute{ENSSAT}
+\date{}
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% Anneau (Z,+,x) %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+ \frametitle{L'anneau $(\mathbb{Z},+,\times)$}
+\begin{theoreme}
+L'ensemble $\mathbb{Z}$ des entiers relatifs est un anneau commutatif unitaire intègre totalement ordonné. 
+\end{theoreme}
+\begin{itemize}
+ \item \underline{anneau} : $\mathbb{Z}$ est un groupe commmutatif pour $+$. $\times$ est interne, associative
+et la multiplication est distributive par rapport à l'addition.
+  \item Cet anneau est \underline{commutatif} car $\times$ l'est.
+  \item Cet anneau est \underline{unitaire} car $1$ est neutre pour $\times$.
+  \item Cet anneau est \underline{intègre} : si $ab=0$ et $a \neq 0$ alors $b =0$.\\
+\underline{conséquence :} on peut faire des simplications : $ab=ac$ et $a \neq 0 \Rightarrow b=c$
+  \item $\mathbb{Z}$ est \underline{totalement ordonné} : $\leq$ munit $\mathbb{Z}$ d'une relation d'ordre
+et cet ordre est compatible avec $+$ et $\times$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+ \frametitle{L'anneau $(\mathbb{Z},+,\times)$}
+\begin{theoreme}
+ Cet anneau est \underline{euclidien}, c'est à dire muni d'une \underline{division euclidienne} :\\
+Si $a,b \in \mathbb{Z}$, $b \geq 0$ alors il existe $q$ et $r \in \mathbb{Z}$, \underline{uniques},
+tels que : $a=bq+r$ et $0 \leq r < b$.
+\end{theoreme}
+\underline{remarques :} $q$ est le quotient et $r$ le reste.\\
+Dans le cas où $r=0$ on dit que $b$ divise $a$ et on note $b \vert a$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Idéaux de $\mathbb{Z}$}
+\begin{definition}
+ On appelle \underline{idéal} d'un anneau $A$ tout sous-groupe additif qui est stable pour la multiplication
+par les éléments de $A$.
+\end{definition}
+\begin{exampleblock}{Exemple}
+  Soit $n \in \mathbb{Z}$. L'ensemble $n\mathbb{Z}$ des multiples de $n$ est un idéal de $\mathbb{Z}$.\\
+Cet idéal est engendré par le seul élément $n$ : on dit qu'il est \underline{principal}.
+\end{exampleblock}
+ \begin{proposition}
+Soit $a_1,\ldots, a_k$ des éléments d'un anneau $A$. L'ensemble des $\{ u_1a_1+\cdots y_ka_k \vert u_1 
+\in A, \ldots, u_k \in A\}$ est un idéal de $A$ engendré par $a_1,\ldots , a_k$ et noté $(a_1,\cdots,a_k)$.
+ \end{proposition}
+Ainsi $n\mathbb{Z}$ est noté $(n)$.
+\end{frame}
+
+\begin{frame}
+ \frametitle{Idéaux de $\mathbb{Z}$}
+\begin{exampleblock}{Exercice}
+ Montrer que si $b \vert a$ alors $(a) \subset (b)$.
+\end{exampleblock}
+\underline{Remarque :} Dans $\mathbb{Z}$, $(2,4,6)$ est principal car $(2,4,6)=(2)$.\\
+Plus généralement :
+\begin{proposition}
+ Tous les idéaux de $\mathbb{Z}$ sont du type $n\mathbb{Z}$.
+\end{proposition}
+\begin{definition}
+ Tous les idéaux de $\mathbb{Z}$ étant principaux, on dit que $\mathbb{Z}$ est un anneau \underline{principal}.
+\end{definition}
+\underline{Remarque :} On démontre de la même façon que plus généralement tout anneau unitaire est principal.
+\end{frame}
+
+\begin{frame}
+ \frametitle{PGCD, PPCM}
+\begin{definition}
+ Soient deux entier $n$ et $m$.
+\begin{itemize}
+ \item leur PGCD, noté $(n,m)$ est le générateur positif de l'idéal $(n,m)=n\mathbb{Z}+m\mathbb{Z}$.
+  \item leur PPCM est le générateur positif de $n\mathbb{Z} \cap m\mathbb{Z}$.
+\end{itemize}
+\end{definition}
+\underline{Remarque :} Deux entiers sont dit \underline{premiers entre-eux} si leur PGCD vaut $1$. 
+\begin{propriete}
+ \begin{itemize}
+  \item On a commutativité du PGCD : $(a,b)=(b,a)$.
+  \item Et l'associativité : $(a,b,c)=(a,(b,c))$.
+ \end{itemize}
+\end{propriete}
+\end{frame}
+
+\begin{frame}
+ \frametitle{théorème de Bézout}
+\begin{theoreme}
+ Soient $n$ et $m$ deux entiers.
+\begin{itemize}
+ \item Il existe $u$, $v \in \mathbb{Z}$ tels que $un+vm=(n,m)$.
+  \item $n$ et $m$ sont premier entre-eux si, et seulement s'il existe $u$ et $v$ tels que $un+vm=1$.
+\end{itemize}
+\end{theoreme}
+\begin{exampleblock}{Exemple}
+ Déterminer le PGCD de $48$ et $27$.
+\end{exampleblock}
+\begin{corollaire}[Lemme de Gauss]
+ Si un entier $a$ divise un produit $bc$ de deux entiers et  si $a$ est premier avec $b$ alors $a$ divise $c$.
+\end{corollaire}
+\end{frame}
+
+\begin{frame}
+\frametitle{Nombres premiers}
+\begin{definition}
+  Un entier $n \in \mathbb{Z}$ est dit premier si :
+    \begin{enumerate}
+	\item $n \geq 2$.
+	\item les seuls entiers qui le divisent sont $\{\pm 1; \, \pm n \}$
+    \end{enumerate}
+\end{definition}
+\begin{propriete}
+    \begin{itemize}
+	\item Tout entier différent de $0, 1, -1$ possède un (au moins) diviseur premier.
+	\item L'ensemble $\mathcal{P}$ des nombres premiers est infini.
+	\item $p$ est premier si, et seulement si $p \vert xy \Rightarrow p \vert x$ ou $p \vert y$.
+    \end{itemize}
+\end{propriete}
+\end{frame}
+
+\begin{frame}
+\frametitle{Nombres premiers}
+\begin{theoreme}
+ Tout entier non nul se décompose de manière unique (à un inversible près) en un produit de facteurs premiers :
+$$
+\forall n \in \mathbb{Z}\setminus\{0\}, \exists ! (\alpha_p )_{p \in \mathcal{P}} \vert n=\pm \prod_{p \in
+ \mathcal{P}} p^{\alpha_p}.
+$$
+\end{theoreme}
+\begin{corollaire}
+ Si $n=\pm \prod_{p \in \mathcal{P}} p^{\alpha_p}$ et $m=n=\pm \prod_{p \in
+ \mathcal{P}} p^{\beta_p}$ alors $n \vert m \Leftrightarrow \forall p \in \mathcal{P}, \alpha_p \leq \beta_p$.
+\end{corollaire}
+\end{frame}
+
+\begin{frame}
+ \frametitle{L'anneau $\mathbb{Z}/n\mathbb{Z}$}
+\begin{definition}
+ On dit que $x$ est congru à $y$ modulo $n$ et on note $x \equiv y [n]$ si $x-y \in n\mathbb{Z}$
+\end{definition}
+\underline{Remarques :} 
+\begin{itemize}
+ \item $y-x \in n\mathbb{Z} \Leftrightarrow$ $x$ et $y$ ont le même reste dans la division
+par $n$.
+  \item La congruence est une relation d'équivalence (réflexive, symétrique, transitive). Elle sépare
+ $\mathbb{Z}$ en $n$ classes d'équivalence : la classe de reste $0$ notée $\overline{0}$, celle de $1$ notée
+$\overline{1}, \ldots$, celle des restes $n-1$ notée $\overline{n-1}$.\\
+\end{itemize}
+Ces classes forment \underline{l'ensemble quotient $\mathbb{Z}/n\mathbb{Z}$}. 
+\end{frame}
+
+\begin{frame}
+ \frametitle{Opérations dans $\mathbb{Z}/n\mathbb{Z}$}
+On peut aisément munir $\mathbb{Z}/n\mathbb{Z}$ d'une structure d'anneau en remarquant que :
+\begin{itemize}
+ \item $+$ et $\times$ de $\mathbb{Z}$ sont compatibles avec la congruence :\\
+Si $a_1 \equiv a_2 [n]$ et $b_1 \equiv b_2 [n]$ alors $a_1 + b_1 \equiv a_2 + b_2 [n]$ et
+$a_1 \times b_1 \equiv a_2 \times b_2 [n]$.
+  \item On peut donc définir $+$ et $\times$ dans $\mathbb{Z}/n\mathbb{Z}$ par :\\
+$\overline{a} + \overline{b} = \overline{a+b}$ et $\overline{a}\overline{b} = \overline{ab}$.
+\end{itemize}
+Ces relations donnent à $\mathbb{Z}/n\mathbb{Z}$ une structure d'anneau commutatif unitaire.\\
+Mais pas forcément intègre. Par exemple dans $\mathbb{Z}/6\mathbb{Z}$, $2 \times 3 = 0$.\\
+De même l'ordre induit n'est pas compatible avec $+$ et $\times$.\\
+Par exemple dans $\mathbb{Z}/6\mathbb{Z}$ : $2 < 3$ mais $2+3=5 > 3+3=0$. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Inversion modulo $n$} 
+Le fait qu'il n'existe pas toujours d'inverse complique la résolution des équations. C'est pourquoi
+on chercher des critères d'existence d'éléments inversibles :
+\begin{theoreme}
+ L'ensemble $(\mathbb{Z}/n\mathbb{Z})^{\times}$ des éléments inversibles de $\mathbb{Z}/n\mathbb{Z}$ est égal
+aux classes des entiers premiers à $n$
+\end{theoreme}
+\begin{corollaire}
+ $\mathbb{Z}/n\mathbb{Z}$ est un corps si, et seulement si, $n$ est un nombre premier.
+\end{corollaire}
+\underline{Notation :} Si $p$ est premier on note $\mathbb{F}_p = \mathbb{Z}/p\mathbb{Z}$.
+\end{frame}
+
+\begin{frame}
+ \frametitle{Indicateur d'Euler}
+\begin{definition}
+ L'indicateur d'Euler $\phi(n)$ d'un entier $n \geq 1$ est le nombre d'entiers $m$ premiers avec $n$ et
+inférieurs à $n$.\\
+C'est donc le \underline{cardinal du groupe des éléments inversibles de $\mathbb{Z}/n\mathbb{Z}$}. 
+\end{definition}
+\begin{exampleblock}{Exemples}
+ Calculer $\phi(7)$, $\phi(10)$, $\phi(12)$.
+\end{exampleblock}
+\underline{En particulier :} $\phi(1)=1$ et si $n \geq 2, \; \phi(n) \leq n-1$ avec égalité si $n$ est premier.\\
+Plus généralement :
+\begin{theoreme}
+ Si $p$ est un nombre premier, alors $\phi(p^k)=p^k-p^{k-1}=p^k(1-1/p)$.
+\end{theoreme}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Théorème Chinois}
+\begin{theoreme}
+ Soit $n$ et $m$ deux entiers strictement positifs.\\
+Si $(m,n)=1$ alors l'anneau $\mathbb{Z}/nm\mathbb{Z}$ est isomorphe à l'anneau produit $\mathbb{Z}/n\mathbb{Z}
+\times \mathbb{Z}/m\mathbb{Z}$.
+\end{theoreme}
+\begin{corollaire}
+ \begin{itemize}
+  \item Le groupe $(\mathbb{Z}/nm\mathbb{Z})^{\times}$ est isomorphe au groupe $(\mathbb{Z}/n\mathbb{Z})^{\times}
+\times (\mathbb{Z}/n\mathbb{Z})^{\times}$.
+  \item Soient $n$ et $m$ deux entiers supérieurs ou égaux à $1$ premiers entre eux. On a \\
+$\phi(mn)=\phi(n)\phi(m)$.
+  \item $\phi(n)=n \prod_{p \vert n} (1-1/p)$.
+ \end{itemize}
+\end{corollaire}
+\end{frame}
+
+\begin{frame}
+ \frametitle{théorèmes d'Euler et Fermat}
+\begin{theoreme}[Théorème d'Euler]
+ Si $a$ et $n$ sont premiers entre-eux alors $a^{\phi(n)}\equiv 1 [n].$
+\end{theoreme}
+\begin{theoreme}[Petit théorème de Fermat]
+ Si $p$ est premier, alors $a^p \equiv a [p]$ pour tout $a \in \mathbb{Z}$.\\
+Si de plus, $p$ ne divise pas $a$ alors $a^{p-1}\equiv 1[p]$.
+\end{theoreme}
+\underline{Remarque :} La réciproque est fausse !
+\end{frame}
+
+\end{document}

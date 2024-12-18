@@ -1,0 +1,51 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[francais]{babel}
+
+%opening
+\title{Correction exercices 6 et 7}
+\author{}
+
+\begin{document}
+\maketitle
+
+\noindent{\bf Exercice 6 : }\\
+Il s'agit ici de voir pourquoi le principe de cryptage RSA fonctionne en théorie.
+\begin{enumerate}
+ \item Bob peut calculer $d$ à l'aide de l'algorithme d'Euclide étendu de sorte que $de+l\phi(n)=1$.
+  \item $n=p_1p_2$ et $(p_1,p_2)=1$ donc d'après le théorème Chinois, deux nombres sont égaux modulo
+$p_1$ et $p_2$ si, et seulement s'ils sont égaux modulo $p_1p_2=n$.
+  \item Pour tout $x \in \mathbb{Z}/n\mathbb{Z}$, puisque $ed \equiv 1 [\phi(n)]$, il existe un entier
+$l$ avec 
+$$
+ed=1+l\phi(n)
+$$
+Par conséquent
+$$
+x^{ed}=x^{1+l(p_1-1)(p_2-1)}=x(x^{(p_1-1)})^{(p_2-1)l}\equiv x [p_1]
+$$
+En effet si $p_1$ n'est pas un diviseur de $x$, cette congruence résulte du petit théorème de Fermat.
+Sinon, elle est vraie parce que les deux membres de la congruence sont nuls modulo $p_1$.\\
+De façon analogue on a $x^{ed}\equiv x [p_2]$.\\
+On en déduit à l'aide de la question précédente que $x^{ed}\equiv x [n]$ ($n=p_1p_2$).
+  \item Lorsque Bob reçoit $c$ et calcule $c^d$ modulo $n$, il calcule donc\\
+$$
+c^d\equiv (m^e)^d [n] \equiv m^{ed}[n]
+$$
+Or d'après la question précédente$m^{ed}[n] \equiv m [n]$.\\
+Il a donc bien retrouvé $m$.
+\end{enumerate}
+\vspace{1cm}
+
+\noindent{\bf Exercice 7 : }\\
+Bob a choisi $p_1=13$, $p_2=19$ et $e=5$, pour déchiffrer le message d'Alice il lui faut donc commencer
+par déterminer $d$ tel que $ed \equiv 1 [\phi(p_1p_2)]$ :\\
+\`A l'aide de l'algorithme d'Euclide étendu il peut établir que $5 \times 173-4 \times 216=1$ donc que 
+$d=173$ car $-43\equiv 173 [216]$.\\
+Pour décoder le message d'Alice, il ne lui reste plus qu'à calculer :\\
+$67^{173}$ modulo $216$, $184^{173}$ modulo $216$,..., $20^{173}$ modulo $216$ à l'aide de l'exponentiation
+rapide. 
+\end{document}

@@ -15,7 +15,6 @@ public class Fermee implements EtatPorte {
 	}
 	public String toString()
 	{
-	    // put your code here
 	    return "FERMEE";
 	}
 

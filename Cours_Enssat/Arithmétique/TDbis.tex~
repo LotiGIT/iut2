@@ -1,0 +1,80 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath,amsfonts,amssymb,latexsym}
+
+% options de mise en page
+\hoffset = -1in \voffset = -1in
+\oddsidemargin = 72pt               
+\evensidemargin = 72pt \topmargin = 40pt \textwidth = 450pt
+\textheight = 698pt
+
+%opening
+\title{TD 2 Arithmétique}
+\author{LSI 1}
+\date{}
+
+\begin{document}
+
+\maketitle
+\section{L'anneau $\mathbb{Z}$}
+
+  {\bf Exercice 1}\\
+Déterminer à l'aide de l'algorithme d'Euclide étendu le $\mathrm{pgcd}$ $d$ de $a=1234$ et $b=832$,
+ et deux entiers $u$ et $v$ tels que $d=au +bv$.\\
+
+ \noindent {\bf Exercice 2}\\
+Résoudre dans $\mathbb{Z}^2$ les équations suivantes : $5x-18y=4$ et $6x+15y=28$.
+
+\section{L'anneau $\mathbb{Z}/n\mathbb{Z}$}
+
+  {\bf Exercice 3}
+    \begin{itemize}
+      \item Déterminer le reste de la division de $247^{349}$ par $7$.
+      \item Montrer que $2^{70}+3^{70}$ est divisible par $13$.
+      \item Montrer que $5^4 \times 2^{28} \equiv 1 [641]$, $5^4 \equiv -2^4 [641]$ puis que $641$ 
+divise $2^{32}+1$.\\
+    \end{itemize}
+\noindent {\bf Exercice 4}\\
+      Déterminer l'inverse de $5$ modulo $12$, de $8$ modulo $27$ et de $14$ modulo $25$.\\
+
+
+\noindent{\bf Exercice 5}
+     \begin{itemize}
+      \item Soit $p$ un nombre premier tel que $p>5$. Montrer que $p^4-1$ est mutiple de $240$.
+      \item Un magicien demande à un participant de choisir un grand nombre premier, de calculer son carré puis
+de diviser par 24. Le magicien devine le reste. Explication ?
+     \end{itemize}
+ 
+
+\section{Cryptographie RSA}
+{\bf Description du protocole RSA :}
+\begin{itemize}
+  \item Alice veut envoyer un message secret à Bob.
+  \item \begin{enumerate}
+         \item Bob choisit deux grands nombres premiers $p_1$ et $p_2$ différents.
+	 \item Bob calcule $n=p_1p_2$ et $\phi (n)=(p_1-1)(p_2-1)$.
+	 \item Bob choisit un nombre $e$ premier avec $\phi (n)$.
+	 \item Bob calcule un nombre $d$ tel que $ed \equiv 1 [\phi (n)]$.
+	\end{enumerate}
+  \item Bob envoie $e$ et $n$ à Alice (c'est la clé publique).
+  \item Pour envoyer son message $m$ à Bob, Alice calcule le message crypté $c \equiv m^e [n]$ et envoie $c$
+Bob.
+  \item Bob reçoit $c$ et calcule $m \equiv c^d [n]$.
+\end{itemize}
+\newpage
+\noindent{\bf Exercice 6}\\
+\begin{enumerate}
+\item Expliquer comment Bob peut calculer $d$ après avoir choisi $e$.
+\item Montrer que deux nombres sont égaux modulo $n$ si et seulement si ils sont égaux modulo $p_1$ et $p_2$.
+\item Montrer que pour tout $x \in \mathbb{Z}/n\mathbb{Z}$, $x^{ed}\equiv x [n]$.
+\item Montrer que Bob décrypte effecivement le message d'Alice.
+\end{enumerate}
+
+\noindent{\bf Exercice 7}\\
+Bob choisit $p1=13$, $p_2=19$ et $e=5$.\\
+Alice envoie le message $67$ $184$ $166$ $232$ $79$ $20$.\\
+Quel est ce message, sachant qu'Alice a utlisé une table ASCII.\\
+
+\noindent{\bf Exercice 8}\\
+Montrer que si \`Eve arrive à calculer $\phi(n)$ alors elle peut facilement calculer $p_1$ et $p_2$.
+\end{document}

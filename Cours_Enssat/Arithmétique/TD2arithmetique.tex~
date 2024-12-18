@@ -1,0 +1,81 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{amsmath,amsfonts,amssymb,latexsym}
+\usepackage[utf8]{inputenc}       %caractères accentués et autres
+\usepackage[T1]{fontenc}            %césure des mots accentués
+\usepackage[frenchb]{babel}         %francisation (chapitre,annexe,références...)
+\usepackage[dvips]{graphicx}
+\usepackage{epsf}
+\usepackage{pst-plot}               %insertion graphiques
+
+\hoffset = -1in \voffset = -1in
+\oddsidemargin = 72pt               % options de mise en page
+\evensidemargin = 72pt \topmargin = 40pt \textwidth = 450pt
+\textheight = 698pt
+\newtheorem{defi}{D\'efinition}[section]
+\newtheorem{thm}{Th\'eor\`eme}[section]
+\newtheorem{cor}{Corollaire}[section]
+\newtheorem{ex}{Exercice}
+
+\title{TD Arithmétique\author{LSI 1}\date{}}
+
+
+\begin{document}
+
+\maketitle \pagestyle{myheadings}
+
+
+
+\section{L'anneau $\mathbb{Z}$}
+
+  \subsection{Exercice 1}
+Déterminer à l'aide de l'algorithme d'Euclide étendu le $\mathrm{pgcd}$ $d$ de $a=1234$ et $b=832$,
+ et deux entiers $u$ et $v$ tels que $d=au +bv$.
+
+  \subsection{Exercice 2}
+Résoudre dans $\mathbb{Z}^2$ les équations suivantes : $5x-18y=4$ et $6x+15y=28$.
+
+\section{L'anneau $\mathbb{Z}/n\mathbb{Z}$}
+
+  \subsection{Exercice 3}
+    \begin{itemize}
+      \item Déterminer le reste de la division de $247^{349}$ par $7$.
+      \item Montrer que $2^{70}+3^{70}$ est divisible par $13$.
+      \item Montrer que $5^4 \times 2^28 \equiv 1 [641]$, $5^4 \equiv -2^4 [641]$ puis que $641$ 
+divise $2^{32}+1$
+    \end{itemize}
+
+  \subsection{Exercice 4}
+      Déterminer l'inverse de $5$ modulo $12$, de $8$ modulo $27$ et de $14$ modulo $25$.
+
+
+
+
+\section{Cryptographie}
+
+Alice et Bob veulent communiquer en utilisant RSA. Nous allons
+traiter un exemple numérique en utilisant des petits nombres afin
+que les calculs soient rapidement faisables avec une calculatrice
+de poche (il s'agit ici simplement d'illustrer le fonctionnement
+de ce système, mais en pratique les entiers $p$ et $q$ doivent
+bien sûr être très grands afin d'éviter la cryptanalyse du
+système).
+
+\noindent Bob publie l'exposant de chiffrement $b = 17$ et le
+modulus $n = 35$.
+\begin{enumerate}
+\item
+Alice veut envoyer le message clair $x = 12$ à Bob (il s'agit par
+exemple du codage d'un caractère clair). Quel est le message
+chiffré $y$ qu'elle envoie à Bob (vous proposerez un algorithme de
+calcul d'une puissance modulaire que vous ferez tourner "à la
+main"; il y a peu de calculs si vous les menez adroitement, et
+c'est d'ailleurs primordial dans l'implémentation de RSA vu
+l'ordre de grandeur des entiers manipulés dans la réalité).
+
+\item En pratique Bob a gardé secrets deux entiers premiers $p$ et $q$,
+mais ici le calcul de ces valeurs est immédiat, de sorte qu'Oscar,
+qui intercepte $y$, peut en profiter pour retrouver $x$. Faites le
+travail d'Oscar.
+\end{enumerate}
+
+\end{document}
