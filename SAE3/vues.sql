@@ -1,40 +1,30 @@
 set schema 'sae_db';
 
 
-CREATE OR REPLACE VIEW vue_details_options AS
+-- vue jours en ligne 
+CREATE OR REPLACE VIEW vue_options_offres AS
 SELECT 
-  opt.id_offre
-  s.id_souscription
-  o.nom_option
+    s.id_souscription AS "Souscription n°",
+    s.nb_semaines AS "Nombre de semaines de souscription",
+    s.date_lancement AS "Lancement de la souscription",
+    s.date_annulation AS "Date d'annulation de la souscription",
+    opt.nom AS "Nom de l'option",
+    opt.prix_ht AS "Prix Hors Taxe €",
+    opt.prix_ttc AS "Prix Toute Charge Comprise €",
+    opt.prix_unitaire AS "Prix Unitaire d'une Option",
+    o.id_offre AS "Souscription de l'offre n°"
 FROM 
-  _offre_souscription_option oso
+    _offre_souscription_option oso
 JOIN 
-  _option opt on oso.id_offre = opt.id_offre
-  _souscription s on oso.id_souscription = s.id_souscription
-  _offre o on 
--- vue pour afficher la facturation des options
-
-CREATE OR REPLACE VIEW vue_facture_options AS
-SELECT 
-    f.numero AS "Numéro de Facture",
-    o.nom AS "Option",
-    f.date_emission AS "Date d'Émission",
-    f.date_prestation AS "Date de Prestation",
-    f.date_echeance AS "Date d'Échéance",
-    s.nb_semaines AS "Durée Initiale (semaines)",
-    p.nom_pro AS "Nom du professionnel",
-    lcs.date_changement AS "Date changement statut"
+    _souscription s ON oso.id_souscription = s.id_souscription
+JOIN 
+    _option opt ON oso.nom_option = opt.nom
+JOIN 
+    _offre o ON oso.id_offre = o.id_offre;
     
-FROM 
-  _facture f,
-  _option o,
-  _souscription s,
-  _log_changement_status lcs,
-  _professionnel p
-
-JOIN 
-  _option o on ; 
-  
+    
+    
+    
 
 -- vue pour da la facture sans les montants totaux 
 CREATE OR REPLACE VIEW vue_facture_quantite AS
