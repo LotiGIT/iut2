@@ -594,75 +594,30 @@ INSERT INTO
     )
 VALUES (1, 1, 2.5, 1, 4, 4.5);
 
-INSERT INTO
-    _souscription (nb_semaines, date_lancement)
-VALUES (4, '2024-01-01'),
-    (4, '2024-02-01');
+BEGIN;
 
-INSERT INTO
-    _offre_souscription_option (
-        id_offre,
-        id_souscription,
-        nom_option,
-        date_association
-    )
-VALUES
-    -- Offre 1 (Le Gourmet) avec Souscription 1 et Option "A la une"
-    (
-        1,
-        1,
-        'A la une',
-        '2024-01-15'
-    ),
-    -- Offre 1 (Le Gourmet) avec Souscription 2 et Option "En relief"
-    (
-        1,
-        2,
-        'En relief',
-        '2024-02-20'
-    ),
-    -- Offre 2 (Le Bateau Ivre) avec Souscription 1 et Option "A la une"
-    (
-        2,
-        1,
-        'A la une',
-        '2024-03-05'
-    ),
-    -- Offre 2 (Le Bateau Ivre) avec Souscription 2 et Option "En relief"
-    (
-        2,
-        2,
-        'En relief',
-        '2024-04-10'
-    ),
-    -- Offre 3 (Randonnée en forêt) avec Souscription 1 et Option "A la une"
-    (
-        3,
-        1,
-        'A la une',
-        '2024-01-12'
-    ),
-    -- Offre 4 (Kayak sur la rivière) avec Souscription 2 et Option "En relief"
-    (
-        4,
-        2,
-        'En relief',
-        '2024-02-18'
-    ),
-    -- Offre 5 (Spectacle de magie) avec Souscription 1 et Option "A la une"
-    (
-        5,
-        1,
-        'A la une',
-        '2024-03-12'
-    ),
-    -- Offre 6 (Concert acoustique en plein air) avec Souscription 2 et Option "En relief"
-    (
-        6,
-        2,
-        'En relief',
-        '2024-04-22'
-    );
+-- Étape 1: Insérer une souscription et récupérer son id_souscription.
+WITH new_souscription AS (
+    INSERT INTO _souscription (nb_semaines, date_lancement, date_annulation)
+    VALUES
+        (4, '2024-01-15', NULL)  -- Vous ajustez ces données selon la souscription
+    RETURNING id_souscription
+)
+
+-- Étape 2: Insérer dans la table de relation _offre_souscription_option
+-- Utilise l'`id_souscription` généré par la souscription
+INSERT INTO _offre_souscription_option (id_offre, id_souscription, nom_option)
+SELECT
+    1,  -- Id de l'offre à lier (à adapter selon le besoin)
+    id_souscription,  -- ID de la souscription provenant de la première étape
+    'A la une'  -- Nom de l'option (à ajuster en fonction de l'option choisie)
+FROM
+    new_souscription;
+
+COMMIT;
+
+
+
 
 -- Insertion de plusieurs lignes pour chaque facture
 INSERT INTO

@@ -192,9 +192,8 @@ ADD CONSTRAINT fk_offre_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id
 -- Création de la table de relation ternaire entre _offre, _souscription et _option
 CREATE TABLE _offre_souscription_option (
     id_offre INTEGER NOT NULL,
-    id_souscription INTEGER NOT NULL,
+    id_souscription SERIAL NOT NULL,
     nom_option VARCHAR(50) NOT NULL,
-    date_association DATE NOT NULL DEFAULT CURRENT_DATE,
     PRIMARY KEY (
         id_offre,
         id_souscription,

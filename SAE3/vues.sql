@@ -1,9 +1,10 @@
 set schema 'sae_db';
 
-
+drop view vue_options_offres;
 -- vue jours en ligne 
 CREATE OR REPLACE VIEW vue_options_offres AS
 SELECT 
+    o.id_offre AS "Souscription de l'offre n°",
     s.id_souscription AS "Souscription n°",
     s.nb_semaines AS "Nombre de semaines de souscription",
     s.date_lancement AS "Lancement de la souscription",
@@ -11,8 +12,8 @@ SELECT
     opt.nom AS "Nom de l'option",
     opt.prix_ht AS "Prix Hors Taxe €",
     opt.prix_ttc AS "Prix Toute Charge Comprise €",
-    opt.prix_unitaire AS "Prix Unitaire d'une Option",
-    o.id_offre AS "Souscription de l'offre n°"
+    opt.prix_unitaire AS "Prix Unitaire d'une Option"
+    
 FROM 
     _offre_souscription_option oso
 JOIN 
