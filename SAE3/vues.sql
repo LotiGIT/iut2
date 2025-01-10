@@ -1,6 +1,8 @@
 set schema 'sae_db';
 
 drop view vue_options_offres;
+
+
 -- vue jours en ligne 
 CREATE OR REPLACE VIEW vue_options_offres AS
 SELECT 
@@ -24,7 +26,16 @@ JOIN
     _offre o ON oso.id_offre = o.id_offre;
     
     
-    
+-- vue pour compter les réactions d'un avis
+
+CREATE OR REPLACE VIEW comptage_reaction AS
+SELECT 
+    id_avis,
+    COUNT(*) FILTER (WHERE type_de_reaction = TRUE) AS total_likes,
+    COUNT(*) FILTER (WHERE type_de_reaction = FALSE) AS total_dislikes
+FROM avis_reactions
+GROUP BY id_avis;
+
     
 
 -- vue pour da la facture sans les montants totaux 
