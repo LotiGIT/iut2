@@ -4,6 +4,38 @@ set schema 'sae_db';
 Fonctions            
 */
 
+-- Fonction de comptage des likes et dislikes 
+
+CREATE OR REPLACE FUNCTION update_reaction_counters()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Ajouter un like
+    IF NEW.reaction_type = TRUE THEN
+        UPDATE _avis
+        SET total_likes = total_likes + 1
+        WHERE id = NEW.avis_id;
+    ELSIF NEW.reaction_type = FALSE THEN
+        UPDATE _avis
+        SET total_dislikes = total_dislikes + 1
+        WHERE id = NEW.avis_id;
+    END IF;
+
+    -- Supprimer une ancienne réaction si elle existe
+    IF TG_OP = 'UPDATE' AND OLD.reaction_type IS NOT NULL THEN
+        IF OLD.reaction_type = TRUE THEN
+            UPDATE _avis
+            SET total_likes = total_likes - 1
+            WHERE id = OLD.avis_id;
+        ELSE
+            UPDATE _avis
+            SET total_dislikes = total_dislikes - 1
+            WHERE id = OLD.avis_id;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Vérification des règles métier (avis/réponses)
 
@@ -268,9 +300,9 @@ INSERT
 EXECUTE FUNCTION fk_avis ();
 
 -- trigger pour vérifier les id de la table offre pour tarif_public
-DROP TRIGGER IF EXISTS deferred_fk_offre_tarif_public ON sae_db._tarif_public;
+DROP TRIGGER IF EXISTS deferred_fk_offre_tarif_public ON _tarif_public;
 CREATE CONSTRAINT TRIGGER deferred_fk_offre_tarif_public
-AFTER INSERT OR UPDATE ON sae_db._tarif_public
+AFTER INSERT OR UPDATE ON _tarif_public
 DEFERRABLE INITIALLY DEFERRED
 FOR EACH ROW
 EXECUTE FUNCTION check_fk_offre();
@@ -278,7 +310,7 @@ EXECUTE FUNCTION check_fk_offre();
 -- trigger pour vérifier les id de la table offre pour horaires
 DROP TRIGGER IF EXISTS deferred_fk_offre_horaires ON sae_db._horaires;
 CREATE CONSTRAINT TRIGGER deferred_fk_offre_horaires
-AFTER INSERT OR UPDATE ON sae_db._horaire
+AFTER INSERT OR UPDATE ON _horaire
 DEFERRABLE INITIALLY DEFERRED
 FOR EACH ROW
 EXECUTE FUNCTION check_fk_offre();
@@ -359,23 +391,30 @@ CREATE OR REPLACE TRIGGER offer_update_timestamp BEFORE
 UPDATE ON _offre FOR EACH ROW
 EXECUTE FUNCTION update_offer_timestamp ();
 
--- trigers de vérification d'un unique compte professionnel privé puisse rentrer des valeurs (pas très explicit ça)
+-- triggers de vérification d'un unique compte professionnel privé puisse rentrer des valeurs (pas très explicit ça)
 CREATE OR REPLACE TRIGGER tg_unique_vals_compte BEFORE
 INSERT
     ON _pro_prive FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte ();
 
--- trigers de vérification d'un unique compte professionnel publique puisse rentrer des valeurs (pas très explicit ça)
+-- triggers de vérification d'un unique compte professionnel publique puisse rentrer des valeurs (pas très explicit ça)
 CREATE OR REPLACE TRIGGER tg_unique_vals_compte BEFORE
 INSERT
     ON _pro_public FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte ();
 
--- trigers de vérification d'un unique compte membre puisse rentrer des valeurs (pas très explicit ça)
+-- triggers de vérification d'un unique compte membre puisse rentrer des valeurs (pas très explicit ça)
 CREATE OR REPLACE TRIGGER tg_unique_vals_compte BEFORE
 INSERT
     ON _membre FOR EACH ROW
 EXECUTE FUNCTION unique_vals_compte ();
+
+-- trigger de comptage des réactions
+
+CREATE TRIGGER trg_update_reaction_counters
+AFTER INSERT OR UPDATE OR DELETE ON avis_reactions
+FOR EACH ROW
+EXECUTE FUNCTION update_reaction_counters();
 
 /*-- trigger pour vérifier qu'un avis ne peut être écrit que par un membre
 CREATE TRIGGER trigger_check_avis

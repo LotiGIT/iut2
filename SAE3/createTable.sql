@@ -231,7 +231,17 @@ CREATE TABLE _avis (
     -- Contrainte pour empêcher plusieurs avis initiaux d'un même membre sur une offre
     CONSTRAINT avis_unique_par_membre UNIQUE (id_compte, id_offre)
 );
+ALTER TABLE _avis ADD COLUMN total_likes INT DEFAULT 0;
+ALTER TABLE _avis ADD COLUMN total_dislikes INT DEFAULT 0;
 
+-- ------------------------------------------------------------------------------------------------------- Reaction 
+create table avis_reactions (
+	id_membre int not null references _membre(id_compte) on delete cascade,
+	id_avis int not null references _avis(id_avis) on delete cascade,
+	type_de_reaction boolean, -- TRUE pour 'like', FALSE pour 'dislike', NULL pour aucune réaction
+	primary key (id_membre, id_avis),
+	constraint check_reaction_xor check (type_de_reaction in (TRUE, FALSE) or type_de_reaction is null)
+);
 -- ------------------------------------------------------------------------------------------------------- Facture
 -- Maxime
 CREATE TABLE _facture (
