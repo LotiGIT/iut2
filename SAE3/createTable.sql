@@ -132,17 +132,16 @@ CREATE TABLE _tag ( -- Antoine
 CREATE TABLE _option (
     nom VARCHAR(50) PRIMARY KEY NOT NULL, -- A la une ou En relief
     prix_ht FLOAT NOT NULL,
-    prix_ttc FLOAT, -- déduit par prix_unitaire*nb_semaines
-    prix_unitaire FLOAT
-
-
+    prix_ttc FLOAT -- déduit par prix_unitaire*nb_semaines
 );
 -- ------------------------------------------------------------------------------------------------------- Souscription
 CREATE TABLE _souscription (
     id_souscription SERIAL PRIMARY KEY,
     nb_semaines INTEGER NOT NULL,
     date_lancement DATE NOT NULL,
-    date_annulation DATE
+    date_annulation DATE,
+    est_facturee BOOLEAN DEFAULT FALSE
+    
 );
 -- ------------------------------------------------------------------------------------------------------- Offre
 -- Table _type_offre (gratuite OU standard OU premium)
@@ -179,6 +178,14 @@ CREATE TABLE _offre (
     option VARCHAR(10)
 );
 
+CREATE TABLE _consulter (
+  id_offre int REFERENCES _offre(id_offre) ON DELETE CASCADE,
+  id_membre int REFERENCES _membre(id_compte) ON DELETE CASCADE,
+  vue boolean DEFAULT FALSE,
+  date_consultation DATE,
+  PRIMARY KEY (id_offre, id_membre)
+);
+
 ALTER TABLE _offre
 ADD CONSTRAINT fk_offre_type_offre FOREIGN KEY (id_type_offre) REFERENCES _type_offre (id_type_offre) DEFERRABLE INITIALLY IMMEDIATE;
 
@@ -189,11 +196,11 @@ ALTER TABLE _offre
 ADD CONSTRAINT fk_offre_adresse FOREIGN KEY (id_adresse) REFERENCES _adresse (id_adresse) DEFERRABLE INITIALLY IMMEDIATE;
 
 -- ------------------------------------------------------------------------------------------------------- Relation ternaire entre Offre, Souscription et Option
--- Création de la table de relation ternaire entre _offre, _souscription et _option
 CREATE TABLE _offre_souscription_option (
     id_offre INTEGER NOT NULL,
     id_souscription SERIAL NOT NULL,
     nom_option VARCHAR(50) NOT NULL,
+    est_annulee BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (
         id_offre,
         id_souscription,
@@ -241,6 +248,22 @@ create table avis_reactions (
 	type_de_reaction boolean, -- TRUE pour 'like', FALSE pour 'dislike', NULL pour aucune réaction
 	primary key (id_membre, id_avis),
 	constraint check_reaction_xor check (type_de_reaction in (TRUE, FALSE) or type_de_reaction is null)
+);
+
+-- ------------------------------------------------------------------------------------------------------- Signalement
+CREATE TABLE _signalement (
+    id_signalement INT REFERENCES,
+    categorie varchar(50) NOT NULL
+);
+
+
+CREATE TABLE est_signalee (
+    id_avis INTEGER NOT NULL REFERENCES _avis(id_avis) ON DELETE CASCADE,
+    id_compte INTEGER NOT NULL REFERENCES _compte(id_compte) ON DELETE CASCADE,
+    id_signalement INTEGER NOT NULL REFERENCES _signalement(id_signalement) ON DELETE CASCADE,
+    commentaire VARCHAR(255) NOT NULL,
+    date_signalement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_avis, id_signalement, id_compte)
 );
 -- ------------------------------------------------------------------------------------------------------- Facture
 -- Maxime

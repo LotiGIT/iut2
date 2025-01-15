@@ -1,8 +1,5 @@
 set schema 'sae_db';
 
-drop view vue_options_offres;
-
-
 -- vue jours en ligne 
 CREATE OR REPLACE VIEW vue_options_offres AS
 SELECT 
@@ -13,8 +10,7 @@ SELECT
     s.date_annulation AS "Date d'annulation de la souscription",
     opt.nom AS "Nom de l'option",
     opt.prix_ht AS "Prix Hors Taxe €",
-    opt.prix_ttc AS "Prix Toute Charge Comprise €",
-    opt.prix_unitaire AS "Prix Unitaire d'une Option"
+    opt.prix_ttc AS "Prix Toute Charge Comprise €"
     
 FROM 
     _offre_souscription_option oso
@@ -24,7 +20,6 @@ JOIN
     _option opt ON oso.nom_option = opt.nom
 JOIN 
     _offre o ON oso.id_offre = o.id_offre;
-    
     
 -- vue pour compter les réactions d'un avis
 
@@ -127,15 +122,32 @@ SELECT
     'spectacle' AS type_offre
 FROM _spectacle o;
 
-
 ------------ vue type d'offre
-
-
 create or replace view vue_offre_type as 
-select id_offre, nom
+select id_offre, nom 
 from _offre 
 join _type_offre on  
 _type_offre.id_type_offre = _offre.id_type_offre;
+
+-- vue pour les options modifiées ou annulées
+DROP VIEW vue_annulation_options;
+CREATE OR REPLACE VIEW vue_annulation_options AS
+SELECT
+    o.id_offre,
+    o.id_souscription,
+    o.nom_option,
+    s.date_lancement,
+    o.est_annulee,
+    CASE 
+        WHEN o.est_annulee = TRUE AND s.date_lancement > CURRENT_DATE THEN 'Non facturée'
+        WHEN o.est_annulee = TRUE AND s.date_lancement <= CURRENT_DATE THEN 'Facturée'
+        WHEN o.est_annulee = FALSE AND s.date_lancement > CURRENT_DATE THEN 'Disponible'
+        WHEN o.est_annulee = FALSE AND s.date_lancement <= CURRENT_DATE THEN 'Active'
+    END AS statut_option
+FROM _offre_souscription_option o
+JOIN _souscription s ON o.id_souscription = s.id_souscription;
+
+
 
 -- -------------------------------------------------------------------- Connexion Compte
 
@@ -210,11 +222,4 @@ FROM
     _pro_public ppu
 JOIN 
     _offre o ON ppu.id_compte = o.id_pro;
-
--- -------------------------------------------------------------------- Filtres multicritères Offre 
--- -------------------------------------------------------------------- Mise à la une Offre
--- -------------------------------------------------------------------- Mise en relief Offre
--- -------------------------------------------------------------------- Facturation (générer PDF) 
--- -------------------------------------------------------------------- Vue 
--- -------------------------------------------------------------------- Vue 
  

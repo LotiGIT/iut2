@@ -34,24 +34,35 @@ _offre_souscription_option,
 _facture
 RESTART IDENTITY CASCADE;
 
+
+
+
+INSERT INTO
+    sae_db._avis_restauration_note (
+        id_avis,
+        id_restauration,
+        note_ambiance,
+        note_service,
+        note_cuisine,
+        rapport_qualite_prix
+    )
+VALUES (1, 1, 2.5, 1, 4, 4.5);
+
 INSERT INTO
     _option (
         nom,
         prix_ht,
-        prix_ttc,
-        prix_unitaire
+        prix_ttc
     )
 VALUES (
         'A la une',
         16.68,
-        20.00,
-        16.68
+        20.00
     ),
     (
         'En relief',
         8.34,
-        10.00,
-        8.34
+        10.00
     );
 
 INSERT INTO
@@ -532,6 +543,29 @@ VALUES (
         3,
         1
     );
+    
+-- insertion avis
+INSERT INTO
+    _avis (
+        date_publication,
+        date_experience,
+        titre,
+        commentaire,
+        note,
+        contexte_passage,
+        id_compte,
+        id_offre
+    )
+VALUES (
+        '2024-11-01',
+        '2024-10-20',
+        'Super expérience',
+        'Très bon restaurant',
+        5,
+        'en solo',
+        1,
+        1
+    );
 
 INSERT INTO
     _type_repas (nom)
@@ -560,39 +594,7 @@ VALUES (7, 1),
     (7, 2),
     (8, 1),
     (8, 3);
--- insertion avis
-INSERT INTO
-    _avis (
-        date_publication,
-        date_experience,
-        titre,
-        commentaire,
-        note,
-        contexte_passage,
-        id_compte,
-        id_offre
-    )
-VALUES (
-        '2024-11-01',
-        '2024-10-20',
-        'Super expérience',
-        'Très bon restaurant',
-        5,
-        'en solo',
-        1,
-        1
-    );
 
-INSERT INTO
-    sae_db._avis_restauration_note (
-        id_avis,
-        id_restauration,
-        note_ambiance,
-        note_service,
-        note_cuisine,
-        rapport_qualite_prix
-    )
-VALUES (1, 1, 2.5, 1, 4, 4.5);
 
 BEGIN;
 
@@ -600,7 +602,7 @@ BEGIN;
 WITH new_souscription AS (
     INSERT INTO _souscription (nb_semaines, date_lancement, date_annulation)
     VALUES
-        (4, '2024-01-15', NULL)  -- Vous ajustez ces données selon la souscription
+        (4, '2025-02-15', NULL)  -- Vous ajustez ces données selon la souscription
     RETURNING id_souscription
 )
 

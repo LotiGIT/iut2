@@ -84,32 +84,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Trigger pour valider les règles métier
+CREATE TRIGGER tg_check_contraintes_avis BEFORE
+INSERT
+    OR
+UPDATE ON sae_db._avis FOR EACH ROW
+EXECUTE FUNCTION check_contraintes_avis();
 
--- Vérification des clés étrangères avec les comptes et offres
-CREATE OR REPLACE FUNCTION fk_avis()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Vérification de l'existence de l'utilisateur (id_compte)
-    IF NOT EXISTS (SELECT 1 FROM  sae_db._pro_prive WHERE id_compte = NEW.id_compte)
-    AND NOT EXISTS (SELECT 1 FROM sae_db._pro_public WHERE id_compte = NEW.id_compte)
-    AND NOT EXISTS (SELECT 1 FROM sae_db._membre WHERE id_compte = NEW.id_compte)
-    THEN
-        RAISE EXCEPTION 'L''id_compte % ne correspond à aucun utilisateur valide.', NEW.id_compte;
-    END IF;
-
-    -- Vérification de l'existence de l'offre (id_offre)
-    IF NOT EXISTS (SELECT 1 FROM sae_db._restauration WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM sae_db._activite WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM sae_db._parc_attraction WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM sae_db._visite WHERE id_offre = NEW.id_offre)
-    AND NOT EXISTS (SELECT 1 FROM sae_db._spectacle WHERE id_offre = NEW.id_offre)
-    THEN
-        RAISE EXCEPTION 'L''id_offre % ne correspond à aucune offre valide.', NEW.id_offre;
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
 
 -- la prestation est créée par un pro et insérée dans la bdd, si un pro différent créé la même prestation alors la prestation est réutilisée et non créée.
 
@@ -202,15 +183,15 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION unique_vals_compte() RETURNS TRIGGER AS $$
 BEGIN
     -- Check pour l'id
-    IF EXISTS (SELECT 1 FROM sae_db._compte WHERE email = NEW.email) THEN
+    IF EXISTS (SELECT 1 FROM _compte WHERE email = NEW.email) THEN
         RAISE EXCEPTION 'Erreur : valeur dupliquée pour l''adresse email dans deux comptes différents';
     END IF;
     -- Check pour le mail
-    IF EXISTS (SELECT 1 FROM sae_db._compte WHERE email = NEW.email) THEN
+    IF EXISTS (SELECT 1 FROM _compte WHERE email = NEW.email) THEN
         RAISE EXCEPTION 'Erreur : valeur dupliquée pour l''adresse email dans deux comptes différents';
     END IF;
     -- Check pour le numero de tel
-    IF EXISTS (SELECT 1 FROM sae_db._compte WHERE email = NEW.email) THEN
+    IF EXISTS (SELECT 1 FROM _compte WHERE email = NEW.email) THEN
         RAISE EXCEPTION 'Erreur : valeur dupliquée pour l''adresse email dans deux comptes différents';
     END IF;
     RETURN NEW;
@@ -219,7 +200,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_fk_offre() RETURNS TRIGGER AS $$
 BEGIN
-    PERFORM * FROM sae_db._offre WHERE id_offre = NEW.id_offre;
+    PERFORM * FROM _offre WHERE id_offre = NEW.id_offre;
     IF NOT FOUND THEN 
         RAISE EXCEPTION 'Foreign key violation: id_offre does not exist in _offre';
     END IF;
@@ -245,6 +226,74 @@ BEGIN
     ELSE
         RETURN 'Email non trouvé dans la base';
     END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- annulation option 
+
+-- Créer une fonction qui gère l'annulation avant ou après le lancement
+
+-- Fonction pour gérer l'annulation
+CREATE OR REPLACE FUNCTION trigger_annulation_souscription()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Vérifier si la date d'annulation est avant la date de lancement
+    IF NEW.date_annulation IS NOT NULL THEN
+        IF NEW.date_annulation < NEW.date_lancement THEN
+            -- Annulation avant la date de lancement => pas facturée
+            UPDATE _souscription
+            SET is_factured = FALSE
+            WHERE id_souscription = NEW.id_souscription;
+
+        ELSE
+            -- Annulation après la date de lancement => facturée
+            UPDATE _souscription
+            SET is_factured = TRUE
+            WHERE id_souscription = NEW.id_souscription;
+
+        END IF;
+    END IF;
+
+    -- Retourner le nouveau ligne de souscription
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- trigger de la modification d'une souscription
+CREATE OR REPLACE FUNCTION trigger_modification_souscription()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Vérification de la modification autorisée
+    IF NEW.date_lancement <= CURRENT_DATE THEN
+        RAISE EXCEPTION 'La souscription ne peut être modifiée : la date de lancement est dépassée.';
+    END IF;
+
+    -- Si une modification est détectée
+    IF TG_OP = 'UPDATE' THEN
+        -- Archiver l'enregistrement actuel
+        UPDATE _souscription
+        SET date_annulation = CURRENT_DATE
+        WHERE id_souscription = OLD.id_souscription;
+
+        -- Créer un nouveau souscription avec les valeurs mises à jour
+        INSERT INTO _souscription (nb_semaines, id_offre, nom_option, date_lancement, date_annulation)
+        VALUES (
+            NEW.nb_semaines,
+            NEW.id_offre,
+            NEW.nom_option,
+            NEW.date_lancement,
+            NULL
+        );
+    END IF;
+
+    -- Bloquer les modifications sur le même enregistrement après la date de lancement
+    IF TG_OP = 'INSERT' THEN
+        RETURN NEW; -- Permettre une insertion si aucun problème
+    END IF;
+
+    RETURN NULL; -- Stopper l'opération par défaut après mise à jour
 END;
 $$ LANGUAGE plpgsql;
 
@@ -340,9 +389,9 @@ FOR EACH ROW
 EXECUTE FUNCTION check_fk_offre();
 
 -- trigger pour vérifier les id de la table offre pour offre log changement status
-DROP TRIGGER IF EXISTS deferred_fk_offre_log_changement_status ON sae_db._log_changement_status;
+DROP TRIGGER IF EXISTS deferred_fk_offre_log_changement_status ON _log_changement_status;
 CREATE CONSTRAINT TRIGGER deferred_fk_offre_log_changement_status
-AFTER INSERT OR UPDATE ON sae_db._log_changement_status
+AFTER INSERT OR UPDATE ON _log_changement_status
 DEFERRABLE INITIALLY DEFERRED
 FOR EACH ROW
 EXECUTE FUNCTION check_fk_offre();
@@ -415,6 +464,19 @@ CREATE TRIGGER trg_update_reaction_counters
 AFTER INSERT OR UPDATE OR DELETE ON avis_reactions
 FOR EACH ROW
 EXECUTE FUNCTION update_reaction_counters();
+
+-- Déclencheur pour gérer l'annulation
+CREATE TRIGGER trigger_annulation_souscription
+BEFORE UPDATE ON _souscription
+FOR EACH ROW
+EXECUTE FUNCTION trigger_annulation_souscription();
+
+-- Déclencheur associé à la table _souscription
+CREATE TRIGGER trigger_modif_souscription
+BEFORE INSERT OR UPDATE ON _souscription
+FOR EACH ROW
+EXECUTE FUNCTION trigger_modification_souscription();
+
 
 /*-- trigger pour vérifier qu'un avis ne peut être écrit que par un membre
 CREATE TRIGGER trigger_check_avis
