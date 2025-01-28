@@ -64,15 +64,15 @@ insert into jeu_developper values (2, 2);
 insert into jeu_developper values (1, 3);
 insert into jeu_developper values (3, 4);
 
-CREATE VIEW vue_jeu_developpeur_personnage AS
+CREATE VIEW vue_globale AS
 SELECT 
     j.id_jeu,
     j.titre AS jeu_titre,
     j.release AS jeu_release,
-    -- Agrégation des développeurs pour chaque jeu
+    
     string_agg(DISTINCT d.nom, ', ') AS developper_nom,
-    -- Agrégation des personnages pour chaque jeu
     string_agg(DISTINCT p.nom_personnage, ', ') AS personnages
+    
 FROM jeu j
 JOIN jeu_developper jd ON j.id_jeu = jd.id_jeu
 JOIN developper d ON jd.id_developper = d.id
