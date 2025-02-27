@@ -1,0 +1,43 @@
+DROP SCHEMA IF EXISTS tp_R4C102 CASCADE;
+
+CREATE SCHEMA tp_R4C102;
+
+SET SCHEMA 'tp_R4C102';
+
+drop table tp_R4C102.ville;
+create table tp_R4C102.ville (
+    city varchar(50),
+    city_ascii varchar(50),
+    state_id varchar(2),
+    state_name varchar(50),
+    county_fips varchar(50),
+    county_name varchar (50),
+    lat varchar(10),
+    lng varchar(10),
+    population int,
+    density varchar(50),
+    source varchar(50),
+    military bool,
+    incorporated bool,
+    timezone varchar(50),
+    ranking int,
+    zips text,
+    id serial primary key
+);
+
+
+create table tp_R4C102.pays_continent (
+    continent varchar(25),
+    country varchar (50)
+);
+
+
+create or replace view tp_R4C102._hierarchie as
+select city, county_name, state_name, state_id, timezone
+from tp_R4C102.ville;
+
+-- Nombre de villes par pays
+select count(distinct city) as nombre_de_villes from tp_R4C102.ville;
+
+-- Nombre de pays par continents
+select count(distinct country)
