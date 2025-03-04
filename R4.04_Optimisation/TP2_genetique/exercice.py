@@ -42,19 +42,32 @@ def PopAlea(nVille, p):
     return reponse
 
 def LTrajet(t, carte):
-    longueur = 0
+    # je pars de la 1ere ville et je reviens à la ville d'où je suis parti grâce à 'longueur'
+    longueur = carte[0][t[0]]+carte[t[-1]][0]
     for i in range(len(t)-1):
-        longueur += carte[t[i], t[i+1]]
+        longueur += carte[t[i]][t[i+1]]
     return longueur
 
-def LPop(Population, Carte):
-    longueur = []
-    for i in Population:
-        longueur.append(LTrajet(Population, Carte))
-    return np.array(longueur) 
+#input(LTrajet(list(range(1,15)),Carte1))
 
-# print(PopAlea(5, 10))
+def LPop(PopTrajet, Carte):
+    rep = []
+    for t in PopTrajet:
+        rep += [LTrajet(t, Carte)]
+    return rep
 
-# print (LTrajet([0, 2, 1, 3, 0], Carte0))
+pop = PopAlea(14, 20)
+print("chemin du trajet : ", pop[0])
+pop = LTrajet(pop[0], Carte1)
+print("Nombre de kms parcourus : ", pop)
 
-print(LPop(PopAlea(5, 10), Carte1))
+
+def Selection(P, Carte):
+    P1 = []
+    indices = np.argsort(LPop(P, Carte))
+    pop = P[indices]
+    print(indices)
+    P1 = pop[:len(pop)//2]
+    return P1
+
+print(Selection(pop, Carte1))
