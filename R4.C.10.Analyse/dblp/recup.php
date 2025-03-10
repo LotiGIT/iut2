@@ -1,15 +1,3 @@
-<!-- <?php
-    // q : recherche voulu
-    // $url = "https://dblp.org/search/publ/api?q=%22Multi-Dimensional%20Exploration%20of%20Media%20Collection%20Metadata%22&format=json";
-    
-    // $api = json_encode($url);
-
-    // echo $api;
-
-
-?> -->
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -24,56 +12,75 @@
         <input type="text" id="recherche"/>
         <button type="submit">Rechercher</button>
     </form>
-    <h3>Résultat : <h3>
+    <h3>Résultat :</h3>
     <pre id="resultat">Entrez un titre d'article de la base DBLP.</pre>
+
+<script>
+document.getElementById("formulaire").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    const titre = document.getElementById("recherche").value.trim();
     
-    <script>
-    
-        document.getElementById("formulaire").addEventListener("submit", async function(event){
-        event.preventDefault();
+    if (!titre) {
+        document.getElementById("resultat").textContent = "Veuillez entrer un titre valide";
+        return;
+    }
 
-        // url change en fonction du de la recherche (titre ici)
-        // définition de la variable, on prend l'id de ce que j'écris dans la recherhe puis on trim la valeur. (on récupère un nouveau "q:")
-        const titre = document.getElementById("recherche").value.trim();
-        if(!titre){
-            document.getElementById("resultat").textContent="erreur de con, y'a pas de titre";
-            return;
-        }
+    try {
+        // 1. Vérifier le cache localStorage
+        const cacheKey = `dblp-${titre}`;
+        const cachedData = localStorage.getItem(cacheKey);
 
-        // changer l'url en fonction du titre
-        const url = `https://dblp.org/search/publ/api?q=${encodeURIComponent(titre)}&format=json`;
-        try {
-            let reponse = await fetch(url);
-            let data = await reponse.json();
-            console.log(data);
-
-            if(data.result.hits.hit.length > 0){
-                // attention ici au hit[0] qui récupère la données dont on a besoin
-                let demande = data.result.hits.hit[0].info;
-                let auteur = data.result.hits.hit;
-                // key ici est la suite de l'url qu'on veut, elle se trouve en cherchant les id de la base json de l'api
-                let articleURL = `https://dblp.org/rec/${demande.key}`;
-                // innerHTML sert à remplacer un contenu par un autre au format html
-                document.getElementById("resultat").innerHTML= `
-                    <strong>Titre : </strong> ${demande.title} <br>
-                    <strong>Type : </strong> ${demande.type} <br>
-                    <strong>Année : </strong> ${demande.year} <br>
-                    <strong>URL : </strong> ${demande.url} <br>
-                    <strong>Auteur numéro 1  : </strong> ${demande.authors.author.text} <br>
-                    <strong>Pages : </strong> ${demande.pages} <br>
-                    <strong>DOI : </strong> ${demande.doi} <br>
-                    <strong>Venue : </strong> ${demande.venue} <br>
-                    <strong>EE : </strong> ${demande.ee} <br>
-                `;
-            }else{
-                // document permet de récupérer un élément ou faire des vérifications
-                document.getElementById("resultat").textContent = "J'ai rien trouvé chef";
+        if (cachedData) {
+            const { data, timestamp } = JSON.parse(cachedData);
+            
+            // Vérifier si le cache est encore valide (1 heure)
+            if (Date.now() - timestamp < 3600000) {
+                displayResult(data);
+                return; // Sortir si cache valide
             }
-        } catch (error) {
-            document.getElementById("resultat").textContent = "Problème";
         }
-    });
 
+        // 2. Si pas de cache valide, appeler l'API
+        const url = `https://dblp.org/search/publ/api?q=${encodeURIComponent(titre)}&format=json`;
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        
+        const apiData = await response.json();
+        
+        // 3. Mettre à jour le cache
+        localStorage.setItem(cacheKey, JSON.stringify({
+            data: apiData,
+            timestamp: Date.now()
+        }));
+
+        // 4. Afficher les résultats
+        displayResult(apiData);
+
+    } catch (error) {
+        document.getElementById("resultat").innerHTML = 
+            `<span style="color:red">Erreur : ${error.message}</span>`;
+    }
+});
+
+function displayResult(apiData) {
+    if (!apiData.result?.hits?.hit?.length) {
+        document.getElementById("resultat").textContent = "Aucun résultat trouvé";
+        return;
+    }
+
+    const hit = apiData.result.hits.hit[0].info;
+    const authors = hit.authors?.author.map(a => a.text).join(', ') || 'Inconnu';
+    
+    document.getElementById("resultat").innerHTML = `
+        <strong>Titre :</strong> ${hit.title || 'N/A'} <br>
+        <strong>Auteurs :</strong> ${authors} <br>
+        <strong>Année :</strong> ${hit.year || 'N/A'} <br>
+        <strong>Venue :</strong> ${hit.venue || 'N/A'} <br>
+        <strong>URL :</strong> <a href="${hit.url}" target="_blank">${hit.url}</a>
+        <br><small>(Source: ${localStorage.getItem(`dblp-${titre}`) ? 'Cache' : 'API Live'})</small>
+    `;
+}
 </script>
 </body>
 </html>

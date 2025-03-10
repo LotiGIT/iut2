@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails Publication</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <a href="index.html">← Retour</a>
+        <div id="publicationDetails"></div>
+    </div>
+
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const publicationId = urlParams.get('id');
+
+    // Récupération depuis localStorage
+    const allPublications = Object.entries(localStorage)
+        .filter(([key]) => key.startsWith('dblp-'))
+        .flatMap(([, value]) => JSON.parse(value));
+
+    const publication = allPublications.find(p => p.id === publicationId);
+
+    if(publication) {
+        document.getElementById('publicationDetails').innerHTML = `
+            <h1>${publication.title}</h1>
+            <div class="details">
+                <p><strong>Auteurs:</strong> ${publication.authors.join(', ')}</p>
+                <p><strong>Année:</strong> ${publication.year}</p>
+                <p><strong>Conférence/Journal:</strong> ${publication.venue}</p>
+                <p><strong>URL:</strong> <a href="${publication.url}" target="_blank">${publication.url}</a></p>
+            </div>
+        `;
+    } else {
+        document.getElementById('publicationDetails').innerHTML = 
+            '<p>Publication non trouvée</p>';
+    }
+    </script>
+</body>
+</html>
