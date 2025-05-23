@@ -1,0 +1,5 @@
+Bonjour,
+
+Lors de cette deuxième année d'informatique à l'IUT de Lannion, j'ai pu développer avec mon équipe constituer de 7 personnes une application type TripAdvisor. Je me suis occupé de toute la partie base de données, de la conception du diagramme de classes jusqu'à sa mise en place sur un serveur phpMyAdmin via un script pgSQL.
+
+Je fais actuellement un parcours orienté data et j'aimerai beaucoup découvrir les rouages de ce monde de la donnée.
